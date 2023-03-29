@@ -64,10 +64,6 @@ class VaultKey
         if (!in_array($this->type, self::config()->get('valid_types')))
             throw new Exception('Invalid key type specified.');
 
-        error_log('VaultKey::__construct()');
-        error_log('VaultKey::__construct() - name: ' . $this->name);
-        error_log('VaultKey::__construct() - type: ' . $this->type);
-
         try {
             $this->get_key();
         } catch (Exception $e) {
@@ -123,8 +119,6 @@ class VaultKey
      */
     private function create_key(): void
     {
-        error_log('Creating key: ' . $this->name);
-
         $url = VaultClient::config()->get('vault_url') . '/transit/keys/' . $this->name;
 
         // Add the request body
@@ -143,8 +137,6 @@ class VaultKey
      */
     private function get_key(): void
     {
-        error_log('Getting key: ' . $this->name);
-
         $url = VaultClient::config()->get('vault_url') . '/transit/keys/' . $this->name;
 
         $data = $this->get($url);
@@ -182,9 +174,6 @@ class VaultKey
     private function post(string $url, array $data, bool $return_transfer = true): array
     {
         $ch = $this->get_authenticated_handle($url, $return_transfer);
-
-        error_log('VaultKey::post() - url: ' . $url);
-        error_log('VaultKey::post() - data: ' . json_encode($data));
 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
