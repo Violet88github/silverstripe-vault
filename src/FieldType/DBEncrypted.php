@@ -24,8 +24,6 @@ class DBEncrypted extends DBField
 
     public function __construct($name = null, $cast = 'Varchar', ...$cast_args)
     {
-        error_log("DBEncrypted::__construct($name, $cast, " . print_r($cast_args, true) . ")");
-
         if (in_array($cast, $this->unavailable_casts))
             throw new Exception("Cast type $cast is not available for DBEncrypted");
 
@@ -76,10 +74,6 @@ class DBEncrypted extends DBField
         $args = array_merge([
             $this->name,
         ], $this->cast_args);
-
-        $className = ClassInfo::shortName($class);
-
-        error_log("DBEncrypted::scaffoldFormField($title) => $className(" . implode(', ', $args) . ")");
 
         $field = new $class(...$args);
 
