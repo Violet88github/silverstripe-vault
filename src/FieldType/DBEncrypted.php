@@ -2,25 +2,29 @@
 
 namespace Violet88\VaultModule\FieldType;
 
-use SilverStripe\Dev\Debug;
+use Exception;
+use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\View\Requirements;
 use Violet88\VaultModule\VaultClient;
 
 class DBEncrypted extends DBField
 {
-    private string $field_type = TextField::class;
+    protected $cast = 'Varchar';
 
-    public function __construct(
-        string $name = null,
-        string $fieldtype = null,
-        array $options = []
-    ) {
-        parent::__construct($name, $options);
+    public function __construct($name = null, $cast = 'Varchar')
+    {
+        error_log("DBEncrypted::__construct($name, $cast)");
 
-        if ($fieldtype)
-            $this->field_type = $fieldtype;
+        $this->cast = $cast ?? 'Varchar';
+
+        Requirements::customCSS(
+            '.encrypted_field label::after { content: " (Encrypted)"; color: #aaa; font-size: 0.8em; }'
+        );
+
+        parent::__construct($name);
     }
 
     public function requireField()
@@ -40,32 +44,28 @@ class DBEncrypted extends DBField
 
     public function setValue($value, $record = null, $markChanged = true)
     {
-        error_log('Setting value: ' . $value . ' for field: ' . $this->name);
-
-        error_log(print_r(
-            [
-                'value' => $value,
-                'record' => $record ? $record->toMap() : null,
-                'markChanged' => $markChanged
-            ],
-            true
-        ));
-
         if ($record)
             $record->{$this->name} = $this->decrypt($value);
 
         parent::setValue($this->decrypt($value), $record, $markChanged);
-
-        error_log('Value set: ' . $this->value . ' for field: ' . $this->name);
 
         return $this;
     }
 
     public function scaffoldFormField($title = null, $params = null)
     {
-        $field = $this->field_type;
+        $cast = $this->cast;
 
-        $field = $field::create($this->name, $title);
+        $class = Injector::inst()->get($cast);
+
+        if (!$class)
+            throw new Exception("Could not find field type $cast");
+
+        $field = $class::create($this->name, $title);
+        $field = $field->scaffoldFormField($title, $params);
+        $field->addExtraClass('encrypted_field')
+            ->setAttribute('data-encrypted', 'true')
+            ->setAttribute('data-encrypted-type', $cast);
 
         return $field;
     }
