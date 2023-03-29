@@ -3,6 +3,7 @@
 namespace Violet88\VaultModule\FieldType;
 
 use Exception;
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DB;
@@ -12,13 +13,24 @@ use Violet88\VaultModule\VaultClient;
 
 class DBEncrypted extends DBField
 {
+    private $unavailable_casts = [
+        'HTMLText',
+        'HTMLVarchar',
+    ];
+
     protected $cast = 'Varchar';
 
-    public function __construct($name = null, $cast = 'Varchar')
+    protected $cast_args = [];
+
+    public function __construct($name = null, $cast = 'Varchar', ...$cast_args)
     {
-        error_log("DBEncrypted::__construct($name, $cast)");
+        error_log("DBEncrypted::__construct($name, $cast, " . print_r($cast_args, true) . ")");
+
+        if (in_array($cast, $this->unavailable_casts))
+            throw new Exception("Cast type $cast is not available for DBEncrypted");
 
         $this->cast = $cast ?? 'Varchar';
+        $this->cast_args = $cast_args ?? [];
 
         Requirements::customCSS(
             '.encrypted_field label::after { content: " (Encrypted)"; color: #aaa; font-size: 0.8em; }'
@@ -61,9 +73,18 @@ class DBEncrypted extends DBField
         if (!$class)
             throw new Exception("Could not find field type $cast");
 
-        $field = $class::create($this->name, $title);
-        $field = $field->scaffoldFormField($title, $params);
-        $field->addExtraClass('encrypted_field')
+        $args = array_merge([
+            $this->name,
+        ], $this->cast_args);
+
+        $className = ClassInfo::shortName($class);
+
+        error_log("DBEncrypted::scaffoldFormField($title) => $className(" . implode(', ', $args) . ")");
+
+        $field = new $class(...$args);
+
+        $field = $field->scaffoldFormField($title, $params)
+            ->addExtraClass('encrypted_field')
             ->setAttribute('data-encrypted', 'true')
             ->setAttribute('data-encrypted-type', $cast);
 
