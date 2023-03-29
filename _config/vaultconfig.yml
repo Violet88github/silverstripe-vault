@@ -1,15 +1,11 @@
 ---
 name: vault-config
 ---
-App\DataObjects\ArbitraryObject:
-    extensions:
-        - Violet88\VaultModule\DataExtensions\VaultObjectExtension
-
-# Add the extension to members
-SilverStripe\Security\Member:
-    extensions:
-        - Violet88\VaultModule\DataExtensions\VaultObjectExtension
-
 Violet88\VaultModule\VaultClient:
     vault_url: "http://vault:8200/v1"
     authorization_token: "1234567890"
+
+# Silverstripe injector configuration
+SilverStripe\Core\Injector\Injector:
+    Encrypted:
+        class: Violet88\VaultModule\FieldType\DBEncrypted
