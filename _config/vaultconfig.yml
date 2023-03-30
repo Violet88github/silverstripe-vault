@@ -1,11 +1,7 @@
 ---
 name: vault-config
 ---
-Violet88\VaultModule\VaultClient:
-    vault_url: "http://vault:8200/v1"
-    authorization_token: "1234567890"
-
 # Silverstripe injector configuration
 SilverStripe\Core\Injector\Injector:
-    Encrypted:
-        class: Violet88\VaultModule\FieldType\DBEncrypted
+  Encrypted:
+    class: Violet88\VaultModule\FieldType\DBEncrypted

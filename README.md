@@ -1,14 +1,12 @@
 # SilverStripe Vault Module
 
-[![wakatime](https://wakatime.com/badge/user/5b442c6a-2bed-4f89-a733-ded69f7fa013/project/807f299d-4a9e-4452-b0d0-e4cc688ec627.svg?style=for-the-badge)](https://wakatime.com/badge/user/5b442c6a-2bed-4f89-a733-ded69f7fa013/project/807f299d-4a9e-4452-b0d0-e4cc688ec627)
-
 This module provides a way to store sensitive data securely using the [Vault](https://www.vaultproject.io/) service (specifically the [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit)).
 
 ## Requirements
 
 * SilverStripe 4.0+
 * PHP 8.1+
-* Vault Server with Transit API enabled
+* [Vault Server](https://vaultproject.io) with [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) enabled
 
 ## Installation
 
@@ -34,33 +32,38 @@ vault secrets enable transit
 
 ### SilverStripe
 
-The module requires a Vault server to be configured. The server can be configured in the `config.yml` file.
+The module requires a Vault server to be configured. The server can be configured in the `vault.yml` file.
 
 ```yaml
 ---
-Name: vault
+name: vault
 ---
 Violet88/VaultModule/VaultClient:
     authorization_token:    # Vault Authorization Token
     vault_url:              # Vault URL
 ```
 
-Additionally, a default key can be configured in the `config.yml` file.
+Additionally, a default key can be configured in the `vault.yml` file.
 
 ```yaml
----
-Name: vault
----
 Violet88/VaultModule/VaultKey:
-    name:                   # Key Name
-    type:                   # Key Type, e.g. aes256-gcm96
+    name: # Key Name
+    type: # Key Type, e.g. aes256-gcm96
+```
+
+If no key is configured, the module will use the following defaults.
+
+```yaml
+Violet88/VaultModule/VaultKey:
+    name: 'silverstripe'
+    type: 'aes256-gcm96'
 ```
 
 Keys will be created automatically if they do not exist, be sure to set Vault permissions accordingly.
 
-### Usage
+## Usage
 
-The module provides an 'Encrypted' field type that automatically encrypts and decrypts data when it is saved and retrieved from the database.
+The module provides an `Encrypted` field type that automatically encrypts and decrypts data when it is saved and retrieved from the database.
 
 ```php
 <?php
@@ -86,3 +89,7 @@ class MyDataObject extends DataObject
     ];
 }
 ```
+
+## Disclaimers
+
+* Violet88 is not responsible for any loss of data or other damages caused by the use of this module. A method to recover data is not yet available. Use at your own risk.
