@@ -1,0 +1,18 @@
+.encrypt-field label::after {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 0.8em;
+  margin-left: 0.5em;
+}
+.encrypt-field__encrypted label::after {
+  content: "\f023";
+  color: #28a745;
+}
+.encrypt-field__decrypted label::after {
+  content: "\f3c1";
+  color: #dc3545;
+}
+.encrypt-field__empty label::after {
+  content: "\f128";
+  color: #ffc107;
+}
