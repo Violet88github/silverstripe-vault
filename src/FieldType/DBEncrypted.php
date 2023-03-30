@@ -48,6 +48,13 @@ class DBEncrypted extends DBField
     protected array $cast_args = [];
 
     /**
+     * The actual data that is stored in the database.
+     *
+     * @var string|null $db_value
+     */
+    protected string|null $db_value = null;
+
+    /**
      * The escape type, is only really used to be able to support HTMLText and HTMLVarchar.
      *
      * @var string $escape_type
@@ -102,6 +109,7 @@ class DBEncrypted extends DBField
             $record->{$this->name} = $value;
         }
 
+        $this->db_value = $dbValue;
         $this->is_encrypted = ($value != $dbValue);
 
         parent::setValue($value, $record, $markChanged);
@@ -147,7 +155,7 @@ class DBEncrypted extends DBField
                 ->setAttribute('data-encrypted-error-type', 'unreachable')
                 ->setAttribute('title', 'Vault transit engine is unreachable.');
 
-        if ($this->value === $nullValue || $this->value === null)
+        if ($this->db_value === $nullValue || $this->db_value === null)
             $field->addExtraClass('encrypt-field__empty');
 
         return $field;
@@ -172,8 +180,13 @@ class DBEncrypted extends DBField
     {
         try {
             $vaultClient = VaultClient::create();
-            if (str_starts_with($value ?? '', 'vault:'))
-                $value = $vaultClient->decrypt($value);
+            if (str_starts_with($value ?? '', 'vault:')) {
+                $decryptValue = $vaultClient->decrypt($value);
+                if ($decryptValue === 'null')
+                    $decryptValue = null;
+
+                return $decryptValue;
+            }
         } catch (Exception $e) {
             error_log($e->getMessage());
         }
@@ -190,6 +203,12 @@ class DBEncrypted extends DBField
     {
         try {
             $vaultClient = VaultClient::create();
+
+            error_log(print_r($value, true));
+
+            if ($value === null || empty($value))
+                $value = 'null';
+
             if (!str_starts_with($value ?? '', 'vault:'))
                 $value = $vaultClient->encrypt($value);
         } catch (Exception $e) {
