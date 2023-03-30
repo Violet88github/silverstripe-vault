@@ -4,9 +4,17 @@ namespace Violet88\VaultModule;
 
 use CurlHandle;
 use Exception;
-use GuzzleHttp\Handler\CurlHandler;
 use SilverStripe\Core\Config\Configurable;
 
+/**
+ * The VaultKey class serves as a wrapper for a Vault key.
+ *
+ * @package violet88/silverstripe-vault-module
+ * @author  Violet88 @violet88github <info@violet88.nl>
+ * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
+ *
+ * @access  public
+ */
 class VaultKey
 {
     use Configurable;
@@ -154,6 +162,14 @@ class VaultKey
             throw new Exception('Unknown error occurred while retrieving key.');
     }
 
+    /**
+     * An arbitrary authenticated GET request.
+     *
+     * @param string $url The URL to request.
+     * @param bool $return_transfer Whether to return the transfer or not.
+     *
+     * @return array The response.
+     */
     private function get(string $url, bool $return_transfer = true): array
     {
         $ch = $this->get_authenticated_handle($url, $return_transfer);
@@ -171,6 +187,15 @@ class VaultKey
         return json_decode($response, true);
     }
 
+    /**
+     * An arbitrary authenticated POST request.
+     *
+     * @param string $url The URL to request.
+     * @param array $data The data to send.
+     * @param bool $return_transfer Whether to return the transfer or not.
+     *
+     * @return array The response.
+     */
     private function post(string $url, array $data, bool $return_transfer = true): array
     {
         $ch = $this->get_authenticated_handle($url, $return_transfer);
@@ -189,6 +214,14 @@ class VaultKey
         return json_decode($response, true) ?? [];
     }
 
+    /**
+     * Return a cURL handle with the authorization token set.
+     *
+     * @param string $url The URL to request.
+     * @param bool $return_transfer Whether to return the transfer or not.
+     *
+     * @return CurlHandle The cURL handle.
+     */
     private function get_authenticated_handle(string $url, bool $return_transfer = true): CurlHandle
     {
         $ch = curl_init($url);

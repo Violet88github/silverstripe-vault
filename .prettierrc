@@ -1,0 +1,26 @@
+semi: false
+tabWidth: 4
+singleQuote: false
+overrides:
+    - files: "*.md"
+      options:
+          semi: true
+    - files: "*.json"
+      options:
+          semi: true
+    - files: "*.js"
+      options:
+          semi: true
+          singleQuote: true
+    - files: "*.scss"
+      options:
+          singleQuote: true
+          tabWidth: 2
+    - files:
+          - "*.yml"
+          - "*.yaml"
+          - "*.toml"
+      options:
+          semi: true
+          tabWidth: 2
+          singleQuote: true

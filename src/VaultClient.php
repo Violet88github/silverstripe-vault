@@ -65,6 +65,13 @@ class VaultClient
         return new self($name);
     }
 
+    /**
+     * Encrypt the given data using the configured vault key by making a request to the vault API.
+     *
+     * @param string $data The data to encrypt.
+     *
+     * @return string The encrypted data.
+     */
     public function encrypt(string $data): string
     {
         error_log('Encrypting data: ' . $data);
@@ -91,6 +98,13 @@ class VaultClient
         return $response['data']['ciphertext'];
     }
 
+    /**
+     * Decrypt the given data using the configured vault key by making a request to the vault API.
+     *
+     * @param string $data The data to decrypt.
+     *
+     * @return string The decrypted data.
+     */
     public function decrypt(string $data): string
     {
         $url = $this->vault_url . '/transit/decrypt/' . $this->key->getName();

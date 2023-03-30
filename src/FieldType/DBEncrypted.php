@@ -3,25 +3,69 @@
 namespace Violet88\VaultModule\FieldType;
 
 use Exception;
-use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\View\Requirements;
 use Violet88\VaultModule\VaultClient;
 
+/**
+ * The DBEncrypted class is a new SilverStripe datatype that allows for encrypting and decrypting data in the database using Vault (may be used with other encryption methods in the future).
+ *
+ * @package violet88/silverstripe-vault-module
+ * @author  Violet88 @violet88github <info@violet88.nl>
+ * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
+ * @access  public
+ */
 class DBEncrypted extends DBField
 {
-    private $unavailable_casts = [
-        'HTMLText',
-        'HTMLVarchar',
+    /**
+     * The cast types that cannot be encrypted
+     *
+     * @var array $unavailable_casts
+     */
+    private array $unavailable_casts = [
+        // 'HTMLText',
+        // 'HTMLVarchar',
     ];
 
-    protected $cast = 'Varchar';
+    /**
+     * Whether the data is actually encrypted in the database.
+     *
+     * @var bool $is_encrypted
+     */
+    private bool $is_encrypted = false;
 
-    protected $cast_args = [];
+    /**
+     * The cast type to use for displaying the data, can be any SilverStripe datatype (third party datatypes may not work but have not been tested) except for the ones in $unavailable_casts.
+     *
+     * @var string $cast
+     */
+    protected string $cast = 'Varchar';
 
+    /**
+     * The arguments to pass to the cast type.
+     *
+     * @var array $cast_args
+     */
+    protected array $cast_args = [];
+
+    /**
+     * The escape type, is only really used to be able to support HTMLText and HTMLVarchar.
+     *
+     * @var string $escape_type
+     */
+    private static string $escape_type = 'xml';
+
+    /**
+     * VaultClient constructor.
+     *
+     * @param string $name The name of the field.
+     * @param string $cast The cast type to use for displaying the data.
+     * @param ... $cast_args The arguments to pass to the cast type.
+     *
+     * @return void
+     */
     public function __construct($name = null, $cast = 'Varchar', ...$cast_args)
     {
         if (in_array($cast, $this->unavailable_casts))
@@ -30,9 +74,8 @@ class DBEncrypted extends DBField
         $this->cast = $cast ?? 'Varchar';
         $this->cast_args = $cast_args ?? [];
 
-        Requirements::customCSS(
-            '.encrypted_field label::after { content: " (Encrypted)"; color: #aaa; font-size: 0.8em; }'
-        );
+        Requirements::css('violet88/silverstripe-vault-module: client/dist/styles.css');
+        Requirements::css('violet88/silverstripe-vault-module: client/dist/thirdparty/fontawesome/css/all.min.css');
 
         parent::__construct($name);
     }
@@ -54,10 +97,25 @@ class DBEncrypted extends DBField
 
     public function setValue($value, $record = null, $markChanged = true)
     {
-        if ($record)
-            $record->{$this->name} = $this->decrypt($value);
+        $value = $this->decrypt($value);
 
-        parent::setValue($this->decrypt($value), $record, $markChanged);
+        $dbValue = null;
+        if ($record) {
+            $dbValue = DB::prepared_query("SELECT {$this->name} FROM {$this->tableName} WHERE ID = ?", [$record->ID])->value();
+            $record->{$this->name} = $value;
+        }
+
+        $this->is_encrypted = ($value != $dbValue);
+
+        error_log(print_r([
+            'value' => $value,
+            'dbValue' => $dbValue,
+            'record' => $record ? $record->{$this->name} : null,
+            'is_encrypted' => $this->is_encrypted,
+            'markChanged' => $markChanged,
+        ], true));
+
+        parent::setValue($value, $record, $markChanged);
 
         return $this;
     }
@@ -78,33 +136,56 @@ class DBEncrypted extends DBField
         $field = new $class(...$args);
 
         $field = $field->scaffoldFormField($title, $params)
-            ->addExtraClass('encrypted_field')
-            ->setAttribute('data-encrypted', 'true')
+            ->addExtraClass('encrypt-field')
+            ->addExtraClass('encrypt-field__' . ($this->is_encrypted ? 'encrypted' : 'decrypted'))
+            ->setAttribute('data-encrypted', $this->is_encrypted ? 'true' : 'false')
             ->setAttribute('data-encrypted-type', $cast);
+
+        if ($this->value === null)
+            $field->addExtraClass('encrypt-field__empty');
 
         return $field;
     }
 
+    /**
+     * Returns the decrypted value of the field. This can be used to display the decrypted value in the CMS by using $MyEncryptedField.Decrypted
+     *
+     * @return string
+     */
     public function Decrypted()
     {
         return $this->decrypt($this->value);
     }
 
+    /**
+     * Returns the decrypted value of the field if it is encrypted. If the value is not encrypted, the value will be returned as is.
+     *
+     * @return string
+     */
     private function decrypt($value)
     {
         $vaultClient = VaultClient::create();
 
-        if (str_starts_with($value ?? '', 'vault:'))
-            $value = $vaultClient->decrypt($value);
+        try {
+            if (str_starts_with($value ?? '', 'vault:'))
+                $value = $vaultClient->decrypt($value);
+        } catch (Exception $e) {
+            $value = null;
+        }
 
         return $value;
     }
 
+    /**
+     * Returns the encrypted value of the field if it is not encrypted. If the value is already encrypted, the value will be returned as is.
+     *
+     * @return string
+     */
     private function encrypt($value)
     {
         $vaultClient = VaultClient::create();
 
-        if (!str_starts_with($value ?? '', 'vault:'))
+        if (!str_starts_with($value ?? '', 'vault:') && $value !== null)
             $value = $vaultClient->encrypt($value);
 
         return $value;
