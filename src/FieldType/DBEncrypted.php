@@ -104,7 +104,7 @@ class DBEncrypted extends DBField
         $value = $this->decrypt($value);
 
         $dbValue = null;
-        if ($record) {
+        if ($record && $this->tableName) {
             $dbValue = DB::prepared_query("SELECT {$this->name} FROM {$this->tableName} WHERE ID = ?", [$record->ID])->value();
             $record->{$this->name} = $value;
         }
