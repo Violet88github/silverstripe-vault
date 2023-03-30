@@ -195,7 +195,7 @@ class DBEncrypted extends DBField
     {
         try {
             $vaultClient = VaultClient::create();
-            if (!str_starts_with($value ?? '', 'vault:') && $value !== null)
+            if (!str_starts_with($value ?? '', 'vault:'))
                 $value = $vaultClient->encrypt($value);
         } catch (Exception $e) {
             error_log($e->getMessage());
