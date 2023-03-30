@@ -147,12 +147,7 @@ class DBEncrypted extends DBField
                 ->setAttribute('data-encrypted-error-type', 'unreachable')
                 ->setAttribute('title', 'Vault transit engine is unreachable.');
 
-        error_log(print_r([
-            'nullValue' => $nullValue,
-            'value' => $this->value,
-        ], true));
-
-        if ($this->value === $nullValue)
+        if ($this->value === $nullValue || $this->value === null)
             $field->addExtraClass('encrypt-field__empty');
 
         return $field;
