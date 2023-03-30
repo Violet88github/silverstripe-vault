@@ -24,10 +24,7 @@ class DBEncrypted extends DBField
      *
      * @var array $unavailable_casts
      */
-    private array $unavailable_casts = [
-        // 'HTMLText',
-        // 'HTMLVarchar',
-    ];
+    private array $unavailable_casts = [];
 
     /**
      * Whether the data is actually encrypted in the database.
