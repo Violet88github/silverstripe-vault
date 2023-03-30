@@ -16,3 +16,6 @@
   content: "\f128";
   color: #ffc107;
 }
+.encrypt-field__error label::after {
+  display: none;
+}

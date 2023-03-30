@@ -132,4 +132,25 @@ class VaultClient
 
         return base64_decode($response['data']['plaintext']);
     }
+
+    public function getUrl(): string
+    {
+        return $this->vault_url;
+    }
+
+    public function getStatus(): array
+    {
+        $url = $this->vault_url . '/sys/seal-status';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->authorization_token,
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($response, true);
+    }
 }

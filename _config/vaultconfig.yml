@@ -1,7 +1,10 @@
 ---
 name: vault-config
 ---
-# Silverstripe injector configuration
 SilverStripe\Core\Injector\Injector:
   Encrypted:
     class: Violet88\VaultModule\FieldType\DBEncrypted
+
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - Violet88\VaultModule\SiteConfigExtensions\VaultSiteConfigExtension

@@ -27,4 +27,10 @@
       color: #ffc107;
     }
   }
+
+  &__error {
+    label::after {
+      display: none;
+    }
+  }
 }

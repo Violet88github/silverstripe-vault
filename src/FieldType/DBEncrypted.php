@@ -104,14 +104,6 @@ class DBEncrypted extends DBField
 
         $this->is_encrypted = ($value != $dbValue);
 
-        error_log(print_r([
-            'value' => $value,
-            'dbValue' => $dbValue,
-            'record' => $record ? $record->{$this->name} : null,
-            'is_encrypted' => $this->is_encrypted,
-            'markChanged' => $markChanged,
-        ], true));
-
         parent::setValue($value, $record, $markChanged);
 
         return $this;
@@ -130,15 +122,37 @@ class DBEncrypted extends DBField
             $this->name,
         ], $this->cast_args);
 
-        $field = new $class(...$args);
+        $class = new $class(...$args);
 
-        $field = $field->scaffoldFormField($title, $params)
+        try {
+            $client = VaultClient::create();
+        } catch (Exception $e) {
+            $client = null;
+        }
+
+        $field = $class->scaffoldFormField($title, $params)
             ->addExtraClass('encrypt-field')
             ->addExtraClass('encrypt-field__' . ($this->is_encrypted ? 'encrypted' : 'decrypted'))
             ->setAttribute('data-encrypted', $this->is_encrypted ? 'true' : 'false')
             ->setAttribute('data-encrypted-type', $cast);
 
-        if ($this->value === null)
+        // Get the null value for the cast type
+        $nullValue = null;
+        if (method_exists($class, 'nullValue'))
+            $nullValue = $class->nullValue();
+
+        if (!$client)
+            $field->addExtraClass('encrypt-field__error')
+                ->setAttribute('data-encrypted-error', 'Vault transit engine is unreachable.')
+                ->setAttribute('data-encrypted-error-type', 'unreachable')
+                ->setAttribute('title', 'Vault transit engine is unreachable.');
+
+        error_log(print_r([
+            'nullValue' => $nullValue,
+            'value' => $this->value,
+        ], true));
+
+        if ($this->value === $nullValue)
             $field->addExtraClass('encrypt-field__empty');
 
         return $field;
@@ -161,13 +175,12 @@ class DBEncrypted extends DBField
      */
     private function decrypt($value)
     {
-        $vaultClient = VaultClient::create();
-
         try {
+            $vaultClient = VaultClient::create();
             if (str_starts_with($value ?? '', 'vault:'))
                 $value = $vaultClient->decrypt($value);
         } catch (Exception $e) {
-            $value = null;
+            error_log($e->getMessage());
         }
 
         return $value;
@@ -180,10 +193,13 @@ class DBEncrypted extends DBField
      */
     private function encrypt($value)
     {
-        $vaultClient = VaultClient::create();
-
-        if (!str_starts_with($value ?? '', 'vault:') && $value !== null)
-            $value = $vaultClient->encrypt($value);
+        try {
+            $vaultClient = VaultClient::create();
+            if (!str_starts_with($value ?? '', 'vault:') && $value !== null)
+                $value = $vaultClient->encrypt($value);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
 
         return $value;
     }
