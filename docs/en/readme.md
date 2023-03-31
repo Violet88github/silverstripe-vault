@@ -1,7 +1,124 @@
-# Documentation
-Add your documentation in the docs/en folder as markdown. Note the "en" refers to the langugae used in the documentation you provide.
-If you documentation is vast, you can split it into many markdown files and sub folders.
+# SilverStripe Vault Module
 
-Look over the [guidance on documentation](https://docs.silverstripe.org/en/contributing/documentation/) 
+This module provides a way to store sensitive data securely using the [Vault](https://www.vaultproject.io/) service (specifically the [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit)).
 
-Make sure to remove this readme in your actual module!
+## Requirements
+
+* SilverStripe 4.0+
+* PHP 8.1+
+* [Vault Server](https://vaultproject.io) with [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) enabled
+
+## Installation
+
+Install the module using composer
+
+## Configuration
+
+### Vault
+
+The module requires transit to be enabled on the Vault server. The following policy can be used to enable transit.
+
+```hcl
+path "transit/*" {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+```
+
+The transit engine can be enabled using the following command.
+
+```bash
+vault secrets enable transit
+```
+
+### SilverStripe
+
+The module requires a Vault server to be configured. The server can be configured in the `vault.yml` file.
+
+```yaml
+---
+name: vault
+---
+Violet88/VaultModule/VaultClient:
+    authorization_token:    # Vault Authorization Token
+    vault_url:              # Vault URL
+```
+
+Additionally, a default key can be configured in the `vault.yml` file.
+
+```yaml
+Violet88/VaultModule/VaultKey:
+    name: # Key Name
+    type: # Key Type, e.g. aes256-gcm96
+```
+
+If no key is configured, the module will use the following defaults.
+
+```yaml
+Violet88/VaultModule/VaultKey:
+    name: 'silverstripe'
+    type: 'aes256-gcm96'
+```
+
+Keys will be created automatically if they do not exist, be sure to set Vault permissions accordingly.
+
+## Usage
+
+The module provides an `Encrypted` field type that automatically encrypts and decrypts data when it is saved and retrieved from the database.
+
+```php
+<?php
+
+class MyDataObject extends DataObject
+{
+    private static $db = [
+        'MyEncryptedField' => 'Encrypted',
+    ];
+}
+```
+
+The datatype supports automatic casting, to use it simply pass the cast type as well as any of it's parameters.
+
+```php
+<?php
+
+class MyDataObject extends DataObject
+{
+    private static $db = [
+        'MyEncryptedIntegerField' => 'Encrypted("Int")',
+        'MyEncryptedEnumField' => 'Encrypted("Enum", "value1,value2,value3")',
+    ];
+}
+```
+
+### Filtering
+
+The module provides an `EncryptedSearch` that can be used to filter data by encrypted fields. Keep in mind that the filter will only return exact matches.
+
+```php
+<?php
+
+class MyDataObject extends DataObject
+{
+    private static $searchable_fields = [
+        'MyEncryptedField' => 'EncryptedSearch',
+    ];
+}
+```
+
+### Tasks
+
+The module provides tasks for encrypting and decrypting all data to allow for migration of datatypes, rotation of keys, etc.
+
+```bash
+# Encrypt all data
+vendor/bin/sake dev/tasks/EncryptAllData
+```
+
+```bash
+# Decrypt all data
+vendor/bin/sake dev/tasks/DecryptAllData
+```
+
+## Disclaimers
+
+* Violet88 is not responsible for any loss of data or other damages caused by the use of this module. Use at your own risk.
