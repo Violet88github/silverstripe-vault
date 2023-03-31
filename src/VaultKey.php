@@ -121,6 +121,16 @@ class VaultKey
     }
 
     /**
+     * Get the key.
+     *
+     * @return string
+     */
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
+    /**
      * Create a new vault key.
      *
      * @return void

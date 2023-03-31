@@ -2,8 +2,21 @@
 name: vault-config
 ---
 SilverStripe\Core\Injector\Injector:
+  SilverStripe\Forms\GridField\GridField:
+    class: Violet88\VaultModule\GridField\VaultGridField
   Encrypted:
     class: Violet88\VaultModule\FieldType\DBEncrypted
+  EncryptedSearch:
+    class: Violet88\VaultModule\SearchFilter\EncryptedSearchFilter
+  SilverStripe\ORM\DataListFilter:
+    properties:
+      Encrypted: 'EncryptedSearch'
+  SilverStripe\ORM\DataQuery:
+    properties:
+      Encrypted: 'EncryptedSearch'
+  SilverStripe\ORM\DataObject:
+    properties:
+      Encrypted: 'EncryptedSearch'
 
 SilverStripe\SiteConfig\SiteConfig:
   extensions:

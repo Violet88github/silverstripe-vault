@@ -5,8 +5,11 @@ namespace Violet88\VaultModule\FieldType;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
+use SilverStripe\ORM\FieldType\DBComposite;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\Filters\SearchFilter;
 use SilverStripe\View\Requirements;
+use Violet88\VaultModule\SearchFilter\EncryptedSearchFilter;
 use Violet88\VaultModule\VaultClient;
 
 /**
@@ -86,12 +89,26 @@ class DBEncrypted extends DBField
 
     public function requireField()
     {
-        DB::require_field($this->tableName, $this->name, "text");
+        DB::require_field($this->tableName, $this->name, "varchar(255)");
+        DB::require_field($this->tableName, $this->name . '_bidx', "varchar(255)");
+
+        DB::require_index($this->tableName, $this->name . '_bidx', [
+            'type' => 'index',
+            'columns' => [$this->name . '_bidx']
+        ]);
     }
 
     public function writeToManipulation(&$manipulation)
     {
         $manipulation['fields'][$this->name] = $this->encrypt($this->value);
+
+        try {
+            $client = VaultClient::create();
+
+            $manipulation['fields'][$this->name . '_bidx'] = $client->hmac($this->value ?? 'null');
+        } catch (Exception $e) {
+            $client = null;
+        }
     }
 
     public function saveInto($dataObject)
@@ -161,6 +178,27 @@ class DBEncrypted extends DBField
         return $field;
     }
 
+    public function scaffoldSearchField($title = null, $params = null)
+    {
+        $field = parent::scaffoldSearchField($title, $params);
+
+        // Remove all the extra classes that are added by the scaffoldFormField method
+        $field->removeExtraClass('encrypt-field')
+            ->removeExtraClass('encrypt-field__encrypted')
+            ->removeExtraClass('encrypt-field__decrypted')
+            ->removeExtraClass('encrypt-field__error')
+            ->removeExtraClass('encrypt-field__empty');
+
+        $field->setName($this->name . '_bidx');
+
+        return $field;
+    }
+
+    public function getSchemaValue()
+    {
+        return $this->decrypt($this->value);
+    }
+
     /**
      * Returns the decrypted value of the field. This can be used to display the decrypted value in the CMS by using $MyEncryptedField.Decrypted
      *
@@ -203,8 +241,6 @@ class DBEncrypted extends DBField
     {
         try {
             $vaultClient = VaultClient::create();
-
-            error_log(print_r($value, true));
 
             if ($value === null || empty($value))
                 $value = 'null';

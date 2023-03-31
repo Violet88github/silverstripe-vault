@@ -55,6 +55,7 @@ class DecryptAllTask extends BuildTask
                     }
 
                     DB::prepared_query("UPDATE $table_name SET $field = ? WHERE ID = ?", [$decrypted_value, $object->ID]);
+                    DB::prepared_query("UPDATE $table_name SET {$field}_bidx = ? WHERE ID = ?", [null, $object->ID]);
                 }
             }
         }

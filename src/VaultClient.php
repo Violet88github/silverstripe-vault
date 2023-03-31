@@ -65,6 +65,11 @@ class VaultClient
         return new self($name);
     }
 
+    public function hmac(string $value): string
+    {
+        return hash_hmac('sha256', $value, $this->key->getKey());
+    }
+
     /**
      * Encrypt the given data using the configured vault key by making a request to the vault API.
      *
@@ -74,7 +79,6 @@ class VaultClient
      */
     public function encrypt(string $data): string
     {
-        error_log('Encrypting data: ' . $data);
         $url = $this->vault_url . '/transit/encrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
@@ -136,6 +140,16 @@ class VaultClient
     public function getUrl(): string
     {
         return $this->vault_url;
+    }
+
+    public function getAuthorizationToken(): string
+    {
+        return $this->authorization_token;
+    }
+
+    public function getKey(): VaultKey
+    {
+        return $this->key;
     }
 
     public function getStatus(): array

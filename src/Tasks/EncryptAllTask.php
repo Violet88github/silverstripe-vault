@@ -23,6 +23,7 @@ class EncryptAllTask extends BuildTask
         array_shift($classes);
 
         foreach ($classes as $class) {
+            $className = ClassInfo::shortName($class);
             $fields = $class::config()->get('db');
             $encrypted_fields = array_keys(array_filter($fields, function ($field) {
                 return str_starts_with($field, 'Encrypted');
@@ -33,8 +34,8 @@ class EncryptAllTask extends BuildTask
             if (count($encrypted_fields) === 0)
                 continue;
 
-            error_log("Encrypting $table_name...");
-            error_log("Found " . count($objects) . " objects.");
+            error_log("Encrypting $className...");
+            error_log("Found " . count($objects) . " $className(s).");
 
             foreach ($objects as $object) {
                 foreach ($encrypted_fields as $field) {
@@ -44,8 +45,10 @@ class EncryptAllTask extends BuildTask
                         continue;
 
                     $encrypted_value = $client->encrypt($value ?? 'null');
+                    $hmac_value = $client->hmac($value ?? 'null');
 
                     DB::prepared_query("UPDATE $table_name SET $field = ? WHERE ID = ?", [$encrypted_value, $object->ID]);
+                    DB::prepared_query("UPDATE $table_name SET {$field}_bidx = ? WHERE ID = ?", [$hmac_value, $object->ID]);
                 }
             }
         }
