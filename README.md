@@ -105,6 +105,20 @@ class MyDataObject extends DataObject
 }
 ```
 
+### Tasks
+
+The module provides tasks for encrypting and decrypting all data to allow for migration of datatypes, rotation of keys, etc.
+
+```bash
+# Encrypt all data
+vendor/bin/sake dev/tasks/EncryptAllData
+```
+
+```bash
+# Decrypt all data
+vendor/bin/sake dev/tasks/DecryptAllData
+```
+
 ## Disclaimers
 
-* Violet88 is not responsible for any loss of data or other damages caused by the use of this module. A method to recover data is not yet available. Use at your own risk.
+* Violet88 is not responsible for any loss of data or other damages caused by the use of this module. Use at your own risk.

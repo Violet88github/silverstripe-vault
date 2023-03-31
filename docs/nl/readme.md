@@ -111,6 +111,20 @@ class MyDataObject extends DataObject
 }
 ```
 
+### Tasks
+
+De module biedt tasks om gegevens te encrypten en te decrypten. Dit kan worden gebruikt om alle gegevens te versleutelen, sleutels te roteren, etc.
+
+```bash
+# Encrypt alle data
+vendor/bin/sake dev/tasks/EncryptAllData
+```
+
+```bash
+# Decrypt alle data
+vendor/bin/sake dev/tasks/DecryptAllData
+```
+
 ## Disclaimers
 
 * Violet88 is niet verantwoordelijk voor verlies van gegevens of andere schade die kan worden veroorzaakt door het gebruik van deze module. Gebruik op eigen risico.
