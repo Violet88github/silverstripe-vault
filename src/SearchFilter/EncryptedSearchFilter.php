@@ -22,7 +22,7 @@ class EncryptedSearchFilter extends SearchFilter
         $column = $this->getDbName();
 
         $term = $this->getValue();
-        $term_hmac = VaultClient::create()->encrypt($term);
+        $term_hmac = VaultClient::create()->hmac($term);
         $blindIndexColumn = rtrim($column, '"') . '_bidx"';
 
         $query->where([
@@ -36,7 +36,7 @@ class EncryptedSearchFilter extends SearchFilter
         $column = $this->getDbName();
 
         $term = $this->getValue();
-        $term_hmac = VaultClient::create()->encrypt($term);
+        $term_hmac = VaultClient::create()->hmac($term);
         $blindIndexColumn = rtrim($column, '"') . '_bidx"';
 
         $query->where([
