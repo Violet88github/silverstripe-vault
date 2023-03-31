@@ -90,6 +90,21 @@ class MyDataObject extends DataObject
 }
 ```
 
+### Filtering
+
+The module provides an `EncryptedSearch` that can be used to filter data by encrypted fields. Keep in mind that the filter will only return exact matches.
+
+```php
+<?php
+
+class MyDataObject extends DataObject
+{
+    private static $searchable_fields = [
+        'MyEncryptedField' => 'EncryptedSearch',
+    ];
+}
+```
+
 ## Disclaimers
 
 * Violet88 is not responsible for any loss of data or other damages caused by the use of this module. A method to recover data is not yet available. Use at your own risk.

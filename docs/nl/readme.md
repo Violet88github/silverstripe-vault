@@ -94,6 +94,23 @@ class MyDataObject extends DataObject
 }
 ```
 
+### Filters
+
+De module biedt een `EncryptedFilter` filtertype dat kan worden gebruikt om gegevens te filteren op basis van de ontsleutelde waarde. Houd er rekening mee dat encrypte velden alleen gefilterd kunnen worden op basis van een exacte match.
+
+```php
+<?php
+
+class MyDataObject extends DataObject
+{
+    private static $searchable_fields = [
+        'MyEncryptedField' => [
+            'filter' => 'EncryptedFilter',
+        ],
+    ];
+}
+```
+
 ## Disclaimers
 
 * Violet88 is niet verantwoordelijk voor verlies van gegevens of andere schade die kan worden veroorzaakt door het gebruik van deze module. Gebruik op eigen risico.
