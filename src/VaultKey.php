@@ -137,7 +137,7 @@ class VaultKey
      */
     private function create_key(): void
     {
-        $url = VaultClient::config()->get('vault_url') . '/transit/keys/' . $this->name;
+        $url = VaultClient::config()->get('vault_url') . '/v1/transit/keys/' . $this->name;
 
         // Add the request body
         $data = [
@@ -155,7 +155,7 @@ class VaultKey
      */
     private function get_key(): void
     {
-        $url = VaultClient::config()->get('vault_url') . '/transit/keys/' . $this->name;
+        $url = VaultClient::config()->get('vault_url') . '/v1/transit/keys/' . $this->name;
 
         $data = $this->get($url);
 

@@ -18,6 +18,7 @@ class DecryptAllTask extends BuildTask
 
     public function run($request)
     {
+        $startTime = microtime(true);
         $client = VaultClient::create();
         $classes = ClassInfo::subclassesFor(DataObject::class);
         array_shift($classes);
@@ -47,6 +48,8 @@ class DecryptAllTask extends BuildTask
                     try {
                         $decrypted_value = $client->decrypt($value);
 
+                        error_log("Decrypted $field in $className #{$object->ID} to " . substr($decrypted_value, 0, 20) . '...');
+
                         if ($decrypted_value === 'null')
                             $decrypted_value = null;
                     } catch (\Exception $e) {
@@ -60,6 +63,11 @@ class DecryptAllTask extends BuildTask
             }
         }
 
-        exit('Done!');
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime * 100000) / 100000;
+
+        error_log("Decryption completed in $executionTime seconds.");
+        exit('Done decrypting in ' . $executionTime . ' seconds.');
     }
 }

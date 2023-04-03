@@ -18,6 +18,7 @@ class EncryptAllTask extends BuildTask
 
     public function run($request)
     {
+        $startTime = microtime(true);
         $client = VaultClient::create();
         $classes = ClassInfo::subclassesFor(DataObject::class);
         array_shift($classes);
@@ -44,8 +45,15 @@ class EncryptAllTask extends BuildTask
                     if (str_starts_with($value ?? '', 'vault:'))
                         continue;
 
-                    $encrypted_value = $client->encrypt($value ?? 'null');
-                    $hmac_value = $client->hmac($value ?? 'null');
+                    try {
+                        $encrypted_value = $client->encrypt($value ?? 'null');
+                        $hmac_value = $client->hmac($value ?? 'null');
+
+                        error_log("Encrypted $field in $className #{$object->ID} to " . substr($encrypted_value, 0, 20) . '... with HMAC ' . substr($hmac_value, 0, 20) . '...');
+                    } catch (\Exception $e) {
+                        error_log("Error encrypting $field in $className #{$object->ID}: " . $e->getMessage());
+                        continue;
+                    }
 
                     DB::prepared_query("UPDATE $table_name SET $field = ? WHERE ID = ?", [$encrypted_value, $object->ID]);
                     DB::prepared_query("UPDATE $table_name SET {$field}_bidx = ? WHERE ID = ?", [$hmac_value, $object->ID]);
@@ -53,6 +61,11 @@ class EncryptAllTask extends BuildTask
             }
         }
 
-        exit('Done!');
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+        $executionTime = round($executionTime * 100000) / 100000;
+
+        error_log("Encryption completed in $executionTime seconds.");
+        exit('Done encrypting in ' . $executionTime . ' seconds.');
     }
 }
