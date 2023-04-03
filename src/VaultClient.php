@@ -58,13 +58,20 @@ class VaultClient
     /**
      * Create a new VaultClient instance with the default configuration, allows for method chaining.
      *
-     * @return VaultClient
+     * @return VaultClient The new VaultClient instance.
      */
     public static function create($name = null): self
     {
         return new self($name);
     }
 
+    /**
+     * Compute the HMAC of the given value using the configured vault key.
+     *
+     * @param string $value The value to compute the HMAC of.
+     *
+     * @return string The HMAC of the given value.
+     */
     public function hmac(string $value): string
     {
         return hash_hmac('sha256', $value, $this->key->getKey());
@@ -79,15 +86,13 @@ class VaultClient
      */
     public function encrypt(string $data): string
     {
-        $url = $this->vault_url . '/transit/encrypt/' . $this->key->getName();
+        $url = $this->vault_url . '/v1/transit/encrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->authorization_token,
         ]);
-
-        error_log('Encoding data: ' . $data);
 
         $data = [
             'plaintext' => base64_encode($data)
@@ -112,15 +117,13 @@ class VaultClient
      */
     public function decrypt(string $data): string
     {
-        $url = $this->vault_url . '/transit/decrypt/' . $this->key->getName();
+        $url = $this->vault_url . '/v1/transit/decrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->authorization_token,
         ]);
-
-        error_log('Decoding data: ' . $data);
 
         $data = [
             'ciphertext' => $data,
@@ -133,32 +136,50 @@ class VaultClient
 
         $response = json_decode($response, true);
 
-        error_log('Decoded data: ' . $response['data']['plaintext']);
-
         if (isset($response['errors']))
             throw new Exception($response['errors'][0]);
 
         return base64_decode($response['data']['plaintext']);
     }
 
+    /**
+     * Get the vault URL.
+     *
+     * @return string The vault URL.
+     */
     public function getUrl(): string
     {
         return $this->vault_url;
     }
 
+    /**
+     * Get the authorization token.
+     *
+     * @return string The authorization token.
+     */
     public function getAuthorizationToken(): string
     {
         return $this->authorization_token;
     }
 
+    /**
+     * Get the vault key instance.
+     *
+     * @return VaultKey The vault key instance.
+     */
     public function getKey(): VaultKey
     {
         return $this->key;
     }
 
+    /**
+     * Get the vault server status.
+     *
+     * @return array The vault status.
+     */
     public function getStatus(): array
     {
-        $url = $this->vault_url . '/sys/seal-status';
+        $url = $this->vault_url . '/v1/sys/seal-status';
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
