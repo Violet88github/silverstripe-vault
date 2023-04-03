@@ -55,7 +55,7 @@ class DBEncrypted extends DBField
      *
      * @var string|null $db_value
      */
-    protected string|null $db_value = null;
+    protected ?string $db_value = null;
 
     /**
      * The escape type, is only really used to be able to support HTMLText and HTMLVarchar.
@@ -89,8 +89,8 @@ class DBEncrypted extends DBField
 
     public function requireField()
     {
-        DB::require_field($this->tableName, $this->name, "varchar(255)");
-        DB::require_field($this->tableName, $this->name . '_bidx', "varchar(255)");
+        DB::require_field($this->tableName, $this->name, "text");
+        DB::require_field($this->tableName, $this->name . '_bidx', "varchar(512)");
 
         DB::require_index($this->tableName, $this->name . '_bidx', [
             'type' => 'index',
@@ -197,6 +197,14 @@ class DBEncrypted extends DBField
     public function getSchemaValue()
     {
         return $this->decrypt($this->value);
+    }
+
+    public function enumValues()
+    {
+        if ($this->cast === 'Enum')
+            return explode($this->cast_args[0], ", ");
+
+        return null;
     }
 
     /**
