@@ -5,7 +5,7 @@ This module provides a way to store sensitive data securely using the [Vault](ht
 ## Requirements
 
 * SilverStripe 4.0+
-* PHP 8.1+
+* PHP >= 7.4, >= 8.0
 * [Vault Server](https://vaultproject.io) with [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) enabled
 
 ## Installation
