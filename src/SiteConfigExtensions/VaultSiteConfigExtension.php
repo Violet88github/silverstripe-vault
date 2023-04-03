@@ -48,6 +48,10 @@ class VaultSiteConfigExtension extends DataExtension
             // Get all tabs
             $tabs = $fields->findOrMakeTab('Root');
             foreach ($tabs->getChildren() as $tab) {
+                if (!method_exists($tab, 'Fields')) {
+                    continue;
+                }
+
                 $firstField = $tab->Fields()->first();
                 $fields->addFieldsToTab('Root.' . $tab->getName(), [
                     LiteralField::create('VaultStatus', '<div class="alert alert-danger">Vault or the transit engine are unreachable.</div>'),

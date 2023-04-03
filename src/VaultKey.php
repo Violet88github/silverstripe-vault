@@ -182,15 +182,21 @@ class VaultKey
      */
     private function get(string $url, bool $return_transfer = true): array
     {
-        $ch = $this->get_authenticated_handle($url, $return_transfer);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return_transfer);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . VaultClient::config()->get('authorization_token')
+        ]);
 
         curl_setopt($ch, CURLOPT_HTTPGET, true);
 
         $response = curl_exec($ch);
-        curl_close($ch);
 
         // Check the status code
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
         if (!str_starts_with($status_code, '2'))
             throw new Exception('The following error occurred: ' . $status_code . ' - ' . $response);
 
@@ -208,38 +214,25 @@ class VaultKey
      */
     private function post(string $url, array $data, bool $return_transfer = true): array
     {
-        $ch = $this->get_authenticated_handle($url, $return_transfer);
-
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        // Check the status code
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if (!str_starts_with($status_code, '2'))
-            throw new Exception('The following error occurred: ' . $status_code . ' - ' . $response);
-
-        return json_decode($response, true) ?? [];
-    }
-
-    /**
-     * Return a cURL handle with the authorization token set.
-     *
-     * @param string $url The URL to request.
-     * @param bool $return_transfer Whether to return the transfer or not.
-     *
-     * @return CurlHandle The cURL handle.
-     */
-    private function get_authenticated_handle(string $url, bool $return_transfer = true): CurlHandle
-    {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return_transfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . VaultClient::config()->get('authorization_token')
         ]);
 
-        return $ch;
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($ch);
+
+        // Check the status code
+        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if (!str_starts_with($status_code, '2'))
+            throw new Exception('The following error occurred: ' . $status_code . ' - ' . $response);
+
+        return json_decode($response, true) ?? [];
     }
 }

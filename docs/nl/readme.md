@@ -5,7 +5,7 @@ Deze module biedt een manier om gevoelige gegevens veilig op te slaan met behulp
 ## Vereisten
 
 * SilverStripe 4.0+
-* PHP 8.1+
+* PHP >= 7.4, >= 8.0
 * [Vault Server](https://vaultproject.io) met [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) ingeschakeld
 
 ## Installatie

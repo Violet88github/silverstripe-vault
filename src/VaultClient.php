@@ -87,9 +87,10 @@ class VaultClient
             'Authorization: Bearer ' . $this->authorization_token,
         ]);
 
+        error_log('Encoding data: ' . $data);
+
         $data = [
-            'plaintext' => base64_encode($data),
-            'type' => $this->key->getType(),
+            'plaintext' => base64_encode($data)
         ];
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -119,9 +120,10 @@ class VaultClient
             'Authorization: Bearer ' . $this->authorization_token,
         ]);
 
+        error_log('Decoding data: ' . $data);
+
         $data = [
             'ciphertext' => $data,
-            'type' => $this->key->getType(),
         ];
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -130,6 +132,8 @@ class VaultClient
         curl_close($ch);
 
         $response = json_decode($response, true);
+
+        error_log('Decoded data: ' . $response['data']['plaintext']);
 
         if (isset($response['errors']))
             throw new Exception($response['errors'][0]);
