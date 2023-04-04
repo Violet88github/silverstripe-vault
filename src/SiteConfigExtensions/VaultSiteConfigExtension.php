@@ -118,6 +118,20 @@ class VaultSiteConfigExtension extends DataExtension
         $url = VaultClient::getUrl();
         $auth_token = VaultClient::getToken();
 
+        if (empty($url) || empty($auth_token)) {
+            $missingField = empty($url) ? 'URL' : 'authentication token';
+            $configField = empty($url) ? 'vault_url' : 'vault_token';
+            $envField = empty($url) ? 'VAULT_URL' : 'VAULT_TOKEN';
+
+            return [
+                'reachable' => false,
+                'message' => "Vault $missingField is not set",
+                'details' => "The $missingField for the Vault server is not configured properly.<br/>Please set the <code>$configField</code> config variable for <code>Violet88\VaultModule\VaultClient</code> or the <code>$envField</code> environment variable.<br/><a href='https://github.com/Violet88github/silverstripe-vault/blob/main/docs/en/readme.md' target='_blank'>See the docs</a> for more information.",
+                'color' => 'danger',
+                'icon' => 'fa fa-file-signature',
+            ];
+        }
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
