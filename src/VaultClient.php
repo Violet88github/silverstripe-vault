@@ -157,7 +157,7 @@ class VaultClient
      *
      * @return string The vault URL.
      */
-    public static function getUrl(): string
+    public static function getUrl(): ?string
     {
         return Environment::getEnv('VAULT_URL') ?: self::config()->get('vault_url');
     }
@@ -167,7 +167,7 @@ class VaultClient
      *
      * @return string The vault transit path.
      */
-    public static function getTransitPath(): string
+    public static function getTransitPath(): ?string
     {
         $path = trim(Environment::getEnv('VAULT_TRANSIT_PATH') ?: self::config()->get('vault_transit_path'), '/');
         return '/' . $path;
@@ -178,7 +178,7 @@ class VaultClient
      *
      * @return string The authorization token.
      */
-    public static function getToken(): string
+    public static function getToken(): ?string
     {
         return Environment::getEnv('VAULT_TOKEN') ?: self::config()->get('vault_token');
     }
