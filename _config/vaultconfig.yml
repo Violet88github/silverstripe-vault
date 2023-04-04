@@ -21,3 +21,6 @@ SilverStripe\Core\Injector\Injector:
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - Violet88\VaultModule\SiteConfigExtensions\VaultSiteConfigExtension
+
+Violet88\VaultModule\VaultClient:
+  vault_transit_path: 'transit'

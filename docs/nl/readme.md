@@ -36,6 +36,8 @@ vault secrets enable transit
 
 ### SilverStripe
 
+#### Configuratiebestand
+
 De module vereist een Vault-server die is geconfigureerd. De server kan worden geconfigureerd in het `vault.yml` bestand.
 
 ```yaml
@@ -43,8 +45,9 @@ De module vereist een Vault-server die is geconfigureerd. De server kan worden g
 name: vault
 ---
 Violet88/VaultModule/VaultClient:
-    authorization_token:    # Vault Authorisatietoken
+    vault_token:            # Vault Authorisatietoken
     vault_url:              # Vault URL
+    vault_transit_path:     # Transit locatie, standaard 'transit'
 ```
 
 Daarnaast kan een standaard sleutel worden geconfigureerd in het `vault.yml` bestand.
@@ -64,6 +67,18 @@ Violet88/VaultModule/VaultKey:
 ```
 
 Sleutels worden automatisch aangemaakt als ze nog niet bestaan. Stel de rechten hiervoor in.
+
+#### Environment variabelen
+
+Samen met het `vault.yml` bestand ondersteunt de module de volgende omgevingsvariabelen.
+
+```bash
+VAULT_TOKEN="s.1234567890abcdef"
+VAULT_URL="https://vault.example.com"
+VAULT_TRANSIT_PATH="transit"
+```
+
+Wanneer de omgevingsvariabelen worden gebruikt, worden de waarden uit het `vault.yml` bestand genegeerd.
 
 ## Gebruik
 

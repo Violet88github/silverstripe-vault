@@ -4,6 +4,7 @@ namespace Violet88\VaultModule;
 
 use Exception;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Environment;
 
 /**
  * The VaultClient class serves as a SilverStripe configurable wrapper for the Vault API.
@@ -23,7 +24,7 @@ class VaultClient
      * @config
      * @var string
      */
-    private $authorization_token = null;
+    private $vault_token = null;
 
     /**
      * The API URL to use for vault requests.
@@ -32,6 +33,14 @@ class VaultClient
      * @var string
      */
     private $vault_url = null;
+
+    /**
+     * The transit path to use for vault requests.
+     *
+     * @config
+     * @var string
+     */
+    private $vault_transit_path = null;
 
     /**
      * The vault key instance.
@@ -49,8 +58,9 @@ class VaultClient
      */
     public function __construct($name = null)
     {
-        $this->vault_url = self::config()->get('vault_url');
-        $this->authorization_token = self::config()->get('authorization_token');
+        $this->vault_url = self::getUrl();
+        $this->vault_token = self::getToken();
+        $this->vault_transit_path = self::getTransitPath();
 
         $this->key = VaultKey::create($name);
     }
@@ -86,12 +96,12 @@ class VaultClient
      */
     public function encrypt(string $data): string
     {
-        $url = $this->vault_url . '/v1/transit/encrypt/' . $this->key->getName();
+        $url = $this->vault_url . '/v1' . $this->vault_transit_path . '/encrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->authorization_token,
+            'Authorization: Bearer ' . $this->vault_token,
         ]);
 
         $data = [
@@ -117,12 +127,12 @@ class VaultClient
      */
     public function decrypt(string $data): string
     {
-        $url = $this->vault_url . '/v1/transit/decrypt/' . $this->key->getName();
+        $url = $this->vault_url . '/v1' . $this->vault_transit_path . '/decrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->authorization_token,
+            'Authorization: Bearer ' . $this->vault_token,
         ]);
 
         $data = [
@@ -147,9 +157,20 @@ class VaultClient
      *
      * @return string The vault URL.
      */
-    public function getUrl(): string
+    public static function getUrl(): string
     {
-        return $this->vault_url;
+        return Environment::getEnv('VAULT_URL') ?: self::config()->get('vault_url');
+    }
+
+    /**
+     * Get the vault transit path.
+     *
+     * @return string The vault transit path.
+     */
+    public static function getTransitPath(): string
+    {
+        $path = trim(Environment::getEnv('VAULT_TRANSIT_PATH') ?: self::config()->get('vault_transit_path'), '/');
+        return '/' . $path;
     }
 
     /**
@@ -157,9 +178,9 @@ class VaultClient
      *
      * @return string The authorization token.
      */
-    public function getAuthorizationToken(): string
+    public static function getToken(): string
     {
-        return $this->authorization_token;
+        return Environment::getEnv('VAULT_TOKEN') ?: self::config()->get('vault_token');
     }
 
     /**
@@ -184,7 +205,7 @@ class VaultClient
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->authorization_token,
+            'Authorization: Bearer ' . $this->vault_token,
         ]);
 
         $response = curl_exec($ch);
