@@ -137,7 +137,9 @@ class VaultKey
      */
     private function create_key(): void
     {
-        $url = VaultClient::config()->get('vault_url') . '/v1/transit/keys/' . $this->name;
+        $transit_path = VaultClient::getTransitPath();
+        $url = VaultClient::getUrl();
+        $url .= $transit_path . '/keys/' . $this->name;
 
         // Add the request body
         $data = [
@@ -155,7 +157,9 @@ class VaultKey
      */
     private function get_key(): void
     {
-        $url = VaultClient::config()->get('vault_url') . '/v1/transit/keys/' . $this->name;
+        $transit_path = VaultClient::getTransitPath();
+        $url = VaultClient::getUrl();
+        $url .= $transit_path . '/keys/' . $this->name;
 
         $data = $this->get($url);
 
@@ -185,7 +189,7 @@ class VaultKey
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return_transfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . VaultClient::config()->get('authorization_token')
+            'Authorization: Bearer ' . VaultClient::getToken()
         ]);
 
         curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -217,7 +221,7 @@ class VaultKey
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return_transfer);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . VaultClient::config()->get('authorization_token')
+            'Authorization: Bearer ' . VaultClient::getToken(),
         ]);
 
         curl_setopt($ch, CURLOPT_POST, true);

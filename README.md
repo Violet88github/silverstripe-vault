@@ -32,6 +32,8 @@ vault secrets enable transit
 
 ### SilverStripe
 
+#### Configuration File
+
 The module requires a Vault server to be configured. The server can be configured in the `vault.yml` file.
 
 ```yaml
@@ -39,8 +41,9 @@ The module requires a Vault server to be configured. The server can be configure
 name: vault
 ---
 Violet88/VaultModule/VaultClient:
-    authorization_token:    # Vault Authorization Token
+    vault_token:            # Vault Authorization Token
     vault_url:              # Vault URL
+    vault_transit_path:     # Transit Path, defaults to 'transit'
 ```
 
 Additionally, a default key can be configured in the `vault.yml` file.
@@ -60,6 +63,18 @@ Violet88/VaultModule/VaultKey:
 ```
 
 Keys will be created automatically if they do not exist, be sure to set Vault permissions accordingly.
+
+#### Environment Variables
+
+Along with the `vault.yml` file, the module supports the following environment variables.
+
+```bash
+VAULT_TOKEN="s.1234567890abcdef"
+VAULT_URL="https://vault.example.com"
+VAULT_TRANSIT_PATH="transit"
+```
+
+Setting these environment variables will override the corresponding values set in the `vault.yml` file.
 
 ## Usage
 

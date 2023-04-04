@@ -59,6 +59,13 @@ class VaultSiteConfigExtension extends DataExtension
         $status = $this->getVaultStatus();
 
         if (!$status['reachable']) {
+            $fields->addFieldsToTab('Root.Vault Status', [
+                LiteralField::create(
+                    'VaultStatusDetails',
+                    "<div class='alert'>{$status['details']}</div>"
+                )
+            ]);
+
             // Get all tabs
             $tabs = $fields->findOrMakeTab('Root');
             foreach ($tabs->getChildren() as $tab) {
@@ -108,8 +115,8 @@ class VaultSiteConfigExtension extends DataExtension
     private function getVaultStatus(): array
     {
         // Check if the vault is reachable
-        $url = VaultClient::config()->get('vault_url');
-        $auth_token = VaultClient::config()->get('authorization_token');
+        $url = VaultClient::getUrl();
+        $auth_token = VaultClient::getToken();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -125,6 +132,7 @@ class VaultSiteConfigExtension extends DataExtension
             return [
                 'reachable' => false,
                 'message' => 'Vault is unreachable',
+                'details' => 'Unable to connect to the Vault server at ' . VaultClient::getUrl() . '. Please check the URL and make sure the server is running.',
                 'color' => 'danger',
                 'icon' => 'fa fa-server',
             ];
@@ -146,6 +154,7 @@ class VaultSiteConfigExtension extends DataExtension
             return [
                 'reachable' => false,
                 'message' => 'Vault is sealed',
+                'details' => 'The Vault server at ' . VaultClient::getUrl() . ' is sealed. Please unseal the server before continuing.',
                 'color' => 'danger',
                 'icon' => 'fa fa-shield',
             ];
@@ -158,6 +167,11 @@ class VaultSiteConfigExtension extends DataExtension
             return [
                 'reachable' => false,
                 'message' => 'Vault transit engine is unreachable',
+                'details' => 'Unable to connect to the Vault transit engine at ' .
+                    VaultClient::getUrl() .
+                    '/v1' .
+                    VaultClient::getTransitPath() .
+                    '.<br/>Please check the URL and make sure the transit engine is running.',
                 'color' => 'warning',
                 'icon' => 'fa fa-database',
             ];
