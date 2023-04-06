@@ -3,7 +3,9 @@
 namespace Violet88\VaultModule\FieldType;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\Debug;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBComposite;
 use SilverStripe\ORM\FieldType\DBField;
@@ -234,7 +236,12 @@ class DBEncrypted extends DBField
                 return $decryptValue;
             }
         } catch (Exception $e) {
-            error_log($e->getMessage());
+            $shortenedValue = substr($value, 0, 10);
+            if (strlen($value) > 10)
+                $shortenedValue .= '... ';
+            Injector::inst()
+                ->get(LoggerInterface::class)
+                ->info("Could not decrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
         }
 
         return $value;
@@ -256,7 +263,12 @@ class DBEncrypted extends DBField
             if (!str_starts_with($value ?? '', 'vault:'))
                 $value = $vaultClient->encrypt($value);
         } catch (Exception $e) {
-            error_log($e->getMessage());
+            $shortenedValue = substr($value, 0, 10);
+            if (strlen($value) > 10)
+                $shortenedValue .= '... ';
+            Injector::inst()
+                ->get(LoggerInterface::class)
+                ->info("Could not encrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
         }
 
         return $value;
