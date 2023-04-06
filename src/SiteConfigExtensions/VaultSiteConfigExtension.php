@@ -183,7 +183,6 @@ class VaultSiteConfigExtension extends DataExtension
                 'message' => 'Vault transit engine is unreachable',
                 'details' => 'Unable to connect to the Vault transit engine at ' .
                     VaultClient::getUrl() .
-                    '/v1' .
                     VaultClient::getTransitPath() .
                     '.<br/>Please check the URL and make sure the transit engine is running.',
                 'color' => 'warning',

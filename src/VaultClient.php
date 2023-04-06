@@ -27,6 +27,13 @@ class VaultClient
     private $vault_token = null;
 
     /**
+     * The API version to use for vault requests, don't change this unless you know what you're doing.
+     *
+     * @var string
+     */
+    private static $vault_api_version = 'v1';
+
+    /**
      * The API URL to use for vault requests.
      *
      * @config
@@ -96,7 +103,7 @@ class VaultClient
      */
     public function encrypt(string $data): string
     {
-        $url = $this->vault_url . '/v1' . $this->vault_transit_path . '/encrypt/' . $this->key->getName();
+        $url = $this->vault_url . $this->vault_transit_path . '/encrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -127,7 +134,7 @@ class VaultClient
      */
     public function decrypt(string $data): string
     {
-        $url = $this->vault_url . '/v1' . $this->vault_transit_path . '/decrypt/' . $this->key->getName();
+        $url = $this->vault_url . $this->vault_transit_path . '/decrypt/' . $this->key->getName();
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -170,7 +177,7 @@ class VaultClient
     public static function getTransitPath(): ?string
     {
         $path = trim(Environment::getEnv('VAULT_TRANSIT_PATH') ?: self::config()->get('vault_transit_path'), '/');
-        return '/' . $path;
+        return '/' . self::$vault_api_version . '/' . $path;
     }
 
     /**
@@ -200,7 +207,7 @@ class VaultClient
      */
     public function getStatus(): array
     {
-        $url = $this->vault_url . '/v1/sys/seal-status';
+        $url = $this->vault_url . '/' . $this->vault_api_version . '/sys/seal-status';
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
