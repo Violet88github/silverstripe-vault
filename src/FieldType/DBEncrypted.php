@@ -236,6 +236,7 @@ class DBEncrypted extends DBField
                 return $decryptValue;
             }
         } catch (Exception $e) {
+            $value ??= '';
             $shortenedValue = substr($value, 0, 10);
             if (strlen($value) > 10)
                 $shortenedValue .= '... ';
@@ -263,6 +264,7 @@ class DBEncrypted extends DBField
             if (!str_starts_with($value ?? '', 'vault:'))
                 $value = $vaultClient->encrypt($value);
         } catch (Exception $e) {
+            $value ??= '';
             $shortenedValue = substr($value, 0, 10);
             if (strlen($value) > 10)
                 $shortenedValue .= '... ';
