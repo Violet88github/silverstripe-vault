@@ -207,7 +207,7 @@ class VaultClient
      */
     public function getStatus(): array
     {
-        $url = $this->vault_url . '/' . $this->vault_api_version . '/sys/seal-status';
+        $url = $this->vault_url . '/' . self::$vault_api_version . '/sys/seal-status';
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
