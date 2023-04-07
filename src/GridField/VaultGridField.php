@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\GridField\GridField;
+use Violet88\VaultModule\FieldType\DBEncrypted;
 use Violet88\VaultModule\VaultClient;
 
 class VaultGridField extends GridField
@@ -23,16 +24,12 @@ class VaultGridField extends GridField
             $decryptData = $client->decrypt($data);
 
             for ($i = 0; $i < count($decryptData); $i++) {
+                $cast = $encryptedFields[$data[$i]];
+                $cast = preg_replace('/Encrypted\((.*)\)/', '$1', $cast);
+                $cast = explode(',', $cast)[0];
+                $cast = trim($cast, "\"'");
 
-                if ($decryptData[$i] === 'null')
-                    $decryptData[$i] = null;
-
-                if (is_numeric($decryptData[$i])) {
-                    if (strpos($decryptData[$i], '.') !== false)
-                        $decryptData[$i] = floatval($decryptData[$i]);
-                    else
-                        $decryptData[$i] = intval($decryptData[$i]);
-                }
+                $decryptData[$i] = DBEncrypted::cast($decryptData[$i], $cast);
 
                 $record->setField($data[$i], $decryptData[$i]);
             }
