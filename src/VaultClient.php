@@ -97,11 +97,11 @@ class VaultClient
     /**
      * Encrypt the given data using the configured vault key by making a request to the vault API.
      *
-     * @param string $data The data to encrypt.
+     * @param string|array $data The data to encrypt.
      *
-     * @return string The encrypted data.
+     * @return string|array The encrypted data.
      */
-    public function encrypt(string $data): string
+    public function encrypt($data)
     {
         $url = $this->vault_url . $this->vault_transit_path . '/encrypt/' . $this->key->getName();
 
@@ -111,9 +111,15 @@ class VaultClient
             'Authorization: Bearer ' . $this->vault_token,
         ]);
 
-        $data = [
-            'plaintext' => base64_encode($data)
-        ];
+        if (is_array($data))
+            foreach ($data as $value)
+                $data[] = [
+                    'plaintext' => base64_encode($value)
+                ];
+        else
+            $data = [
+                'plaintext' => base64_encode($data)
+            ];
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
@@ -122,17 +128,22 @@ class VaultClient
 
         $response = json_decode($response, true);
 
+        if (isset($response['data']['batch_results']))
+            return array_map(function ($result) {
+                return $result['ciphertext'];
+            }, $response['data']['batch_results']);
+
         return $response['data']['ciphertext'];
     }
 
     /**
      * Decrypt the given data using the configured vault key by making a request to the vault API.
      *
-     * @param string $data The data to decrypt.
+     * @param string|array $data The data to decrypt.
      *
-     * @return string The decrypted data.
+     * @return string|array The decrypted data.
      */
-    public function decrypt(string $data): string
+    public function decrypt($data)
     {
         $url = $this->vault_url . $this->vault_transit_path . '/decrypt/' . $this->key->getName();
 
@@ -142,9 +153,15 @@ class VaultClient
             'Authorization: Bearer ' . $this->vault_token,
         ]);
 
-        $data = [
-            'ciphertext' => $data,
-        ];
+        if (is_array($data))
+            foreach ($data as $value)
+                $data[] = [
+                    'ciphertext' => $value
+                ];
+        else
+            $data = [
+                'ciphertext' => $data
+            ];
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
@@ -155,6 +172,11 @@ class VaultClient
 
         if (isset($response['errors']))
             throw new Exception($response['errors'][0]);
+
+        if (isset($response['data']['batch_results']))
+            return array_map(function ($result) {
+                return base64_decode($result['plaintext']);
+            }, $response['data']['batch_results']);
 
         return base64_decode($response['data']['plaintext']);
     }
