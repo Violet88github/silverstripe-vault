@@ -22,8 +22,20 @@ class VaultGridField extends GridField
             $client = VaultClient::create();
             $decryptData = $client->decrypt($data);
 
-            for ($i = 0; $i < count($decryptData); $i++)
+            for ($i = 0; $i < count($decryptData); $i++) {
+
+                if ($decryptData[$i] === 'null')
+                    $decryptData[$i] = null;
+
+                if (is_numeric($decryptData[$i])) {
+                    if (strpos($decryptData[$i], '.') !== false)
+                        $decryptData[$i] = floatval($decryptData[$i]);
+                    else
+                        $decryptData[$i] = intval($decryptData[$i]);
+                }
+
                 $record->setField($data[$i], $decryptData[$i]);
+            }
         } catch (\Exception $e) {
             Injector::inst()->get(LoggerInterface::class)->warning($e->getMessage());
         }
