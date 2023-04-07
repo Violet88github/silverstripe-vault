@@ -281,7 +281,7 @@ class DBEncrypted extends DBField
         try {
             $dbField = Injector::inst()->get($class);
 
-            if ($value = 'null')
+            if (str_starts_with($value ?? '', 'vault:') || $value === null || empty($value) || $value === 'null')
                 $value = $dbField->nullValue() ?? null;
 
             $dbField->setValue($value);
