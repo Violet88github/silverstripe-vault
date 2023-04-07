@@ -275,4 +275,19 @@ class DBEncrypted extends DBField
 
         return $value;
     }
+
+    public static function cast($value, $class)
+    {
+        try {
+            $dbField = Injector::inst()->get($class);
+
+            if (str_starts_with($value ?? '', 'vault:') || $value === null || empty($value) || $value === 'null')
+                $value = $dbField->nullValue() ?? null;
+
+            $dbField->setValue($value);
+            return $dbField->getValue();
+        } catch (Exception $e) {
+            throw new Exception("Could not find field type $class");
+        }
+    }
 }

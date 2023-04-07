@@ -112,10 +112,11 @@ class VaultClient
         ]);
 
         if (is_array($data))
-            foreach ($data as $value)
-                $data[] = [
+            $data['batch_input'] = array_map(function ($value) {
+                return [
                     'plaintext' => base64_encode($value)
                 ];
+            }, $data);
         else
             $data = [
                 'plaintext' => base64_encode($data)
@@ -154,10 +155,11 @@ class VaultClient
         ]);
 
         if (is_array($data))
-            foreach ($data as $value)
-                $data[] = [
+            $data['batch_input'] = array_map(function ($value) {
+                return [
                     'ciphertext' => $value
                 ];
+            }, $data);
         else
             $data = [
                 'ciphertext' => $data
