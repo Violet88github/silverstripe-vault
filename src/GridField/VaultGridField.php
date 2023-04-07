@@ -2,6 +2,7 @@
 
 namespace Violet88\VaultModule\GridField;
 
+use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\GridField\GridField;
