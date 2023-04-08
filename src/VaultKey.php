@@ -131,6 +131,28 @@ class VaultKey
     }
 
     /**
+     * Rotate the key.
+     *
+     * @return VaultKey
+     */
+    public function rotate(): self
+    {
+        $transit_path = VaultClient::getTransitPath();
+        $url = VaultClient::getUrl();
+        $url .= $transit_path . '/keys/' . $this->name . '/rotate';
+
+        error_log($url);
+
+        $data = $this->post($url);
+
+        error_log(print_r($data, true));
+
+        $this->get_key();
+
+        return $this;
+    }
+
+    /**
      * Create a new vault key.
      *
      * @return void
@@ -153,9 +175,9 @@ class VaultKey
     /**
      * Get the key.
      *
-     * @return void
+     * @return string The key.
      */
-    private function get_key(): void
+    private function get_key(): string
     {
         $transit_path = VaultClient::getTransitPath();
         $url = VaultClient::getUrl();
@@ -163,13 +185,21 @@ class VaultKey
 
         $data = $this->get($url);
 
+        error_log(print_r($data, true));
+
         if (isset($data['type']) && $data['type'] !== $this->type)
             throw new Exception(sprintf('The key type is not \'%s\'.', $this->type));
 
-        if (isset($data['data']['keys']))
-            $this->key = array_pop($data['data']['keys']);
+        if (isset($data['data']['keys'])) {
+            if (isset($data['latest_version']))
+                $this->key = $data['data']['keys'][$data['latest_version']];
+            else {
+                $latest = max(array_keys($data['data']['keys']));
+                $this->key = $data['data']['keys'][$latest];
+            }
 
-        else if (isset($data['errors']) && count($data['errors']) > 0)
+            return $this->key;
+        } else if (isset($data['errors']) && count($data['errors']) > 0)
             throw new Exception('The following error occurred while retrieving key: ' . implode("\r\n", $data['errors']));
 
         else
@@ -216,7 +246,7 @@ class VaultKey
      *
      * @return array The response.
      */
-    private function post(string $url, array $data, bool $return_transfer = true): array
+    private function post(string $url, array $data = null, bool $return_transfer = true): array
     {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return_transfer);
@@ -225,7 +255,9 @@ class VaultKey
         ]);
 
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        if ($data)
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
         $response = curl_exec($ch);
 

@@ -126,12 +126,12 @@ The module provides tasks for encrypting and decrypting all data to allow for mi
 
 ```bash
 # Encrypt all data
-vendor/bin/sake dev/tasks/EncryptAllData
+vendor/bin/sake dev/tasks/EncryptDBTask
 ```
 
 ```bash
 # Decrypt all data
-vendor/bin/sake dev/tasks/DecryptAllData
+vendor/bin/sake dev/tasks/DecryptDBTask
 ```
 
 ## Disclaimers
