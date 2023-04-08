@@ -10,7 +10,29 @@ This module provides a way to store sensitive data securely using the [Vault](ht
 
 ## Installation
 
-Install the module using composer
+Install the module using composer by adding the module repository and a GitHub OAuth token with repo access to your `composer.json` file.
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Violet88github/silverstripe-vault"
+        }
+    ],
+    "config": {
+        "github-oauth": {
+            "github.com": "1234567890abcdef1234567890abcdef12345678" // Github OAuth token with repo access
+        }
+    }
+}
+```
+
+Then install the module using composer.
+
+```bash
+composer require violet88/silverstripe-vault
+```
 
 ## Configuration
 
@@ -122,7 +144,7 @@ class MyDataObject extends DataObject
 
 ### Tasks
 
-The module provides tasks for encrypting and decrypting all data to allow for migration of datatypes, rotation of keys, etc.
+The module provides tasks for encrypting and decrypting all data and rotating the default key.
 
 ```bash
 # Encrypt all data
@@ -132,6 +154,11 @@ vendor/bin/sake dev/tasks/EncryptDBTask
 ```bash
 # Decrypt all data
 vendor/bin/sake dev/tasks/DecryptDBTask
+```
+
+```bash
+# Rotate keys
+vendor/bin/sake dev/tasks/RotateKeyTask
 ```
 
 ## Disclaimers
