@@ -24,3 +24,8 @@ SilverStripe\SiteConfig\SiteConfig:
 
 Violet88\VaultModule\VaultClient:
   vault_transit_path: 'transit'
+
+# Add the templates folder to the list of folders to look for templates
+SilverStripe\Core\Manifest\ModuleManifest:
+  module_priority:
+    - violet88/silverstripe-vault-module

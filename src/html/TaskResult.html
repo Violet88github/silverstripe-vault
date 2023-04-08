@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <title>Title Status</title>
+        <style>
+            /** @format */
+
+            @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,600;0,700;1,300;1,600;1,700&display=swap");
+
+            :root {
+                --color-white: rgba(255, 255, 255, 1);
+                --color-black: rgba(0, 0, 0, 1);
+                --color-blue: #2babd9;
+                --color-gray: #f8f8f8;
+                --color-gray-darker: #e8e8e8;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --color-white: #121212;
+                    --color-black: rgba(255, 255, 255, 0.87);
+                    --color-blue: #4696b4;
+                    --color-gray: #1c1c1e;
+                    --color-gray-darker: #2c2c2e;
+                }
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                /* Antialiased */
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+
+                background-color: var(--color-white);
+                color: var(--color-black);
+                font-family: "Montserrat", "Open Sans", sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                margin: 0;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                width: 100vw;
+                max-width: 100vw;
+
+                overflow: hidden;
+                overflow-y: auto;
+                padding: 2em;
+            }
+
+            body > h1 {
+                display: none;
+            }
+
+            .task_result h1 {
+                font-size: 2.5rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            .colored {
+                color: var(--color-blue);
+            }
+
+            .muted {
+                color: var(--color-gray-darker);
+            }
+
+            code {
+                background-color: var(--color-gray);
+                border-radius: 5px;
+                display: block;
+                font-size: 0.8rem;
+                margin: 1rem 0;
+                padding: 1rem 1.5rem;
+                max-width: 90vw;
+                overflow: auto;
+            }
+
+            code table {
+                border-collapse: collapse;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            code table td {
+                padding: 0.25rem 0;
+                vertical-align: top;
+            }
+
+            code table td:first-child {
+                white-space: nowrap;
+                width: 150px;
+            }
+
+            code table td:nth-child(2) {
+                word-break: break-all;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="task_result">
+            <h1>
+                Task
+                <span class="colored">Status</span>
+            </h1>
+            <p>Subtitle</p>
+            <code>
+                <table>
+                    DataTable
+                </table>
+            </code>
+        </main>
+    </body>
+</html>

@@ -132,12 +132,12 @@ De module biedt tasks om gegevens te encrypten en te decrypten. Dit kan worden g
 
 ```bash
 # Encrypt alle data
-vendor/bin/sake dev/tasks/EncryptAllData
+vendor/bin/sake dev/tasks/EncryptDBTask
 ```
 
 ```bash
 # Decrypt alle data
-vendor/bin/sake dev/tasks/DecryptAllData
+vendor/bin/sake dev/tasks/DecryptDBTask
 ```
 
 ## Disclaimers

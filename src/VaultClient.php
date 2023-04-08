@@ -184,6 +184,54 @@ class VaultClient
     }
 
     /**
+     * Rewrap the given data using the configured vault key by making a request to the vault API.
+     *
+     * @param string|array $data The data to rewrap.
+     *
+     * @return string|array The rewrapped data.
+     */
+    public function rewrap($data)
+    {
+        $url = $this->vault_url . $this->vault_transit_path . '/rewrap/' . $this->key->getName();
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->vault_token,
+        ]);
+
+        error_log(print_r($data, true));
+
+        if (is_array($data))
+            $data['batch_input'] = array_map(function ($value) {
+                return [
+                    'ciphertext' => $value
+                ];
+            }, $data);
+        else
+            $data = [
+                'ciphertext' => $data
+            ];
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $response = json_decode($response, true);
+
+        if (isset($response['errors']))
+            throw new Exception($response['errors'][0]);
+
+        if (isset($response['data']['batch_results']))
+            return array_map(function ($result) {
+                return $result['ciphertext'];
+            }, $response['data']['batch_results']);
+
+        return $response['data']['ciphertext'];
+    }
+
+    /**
      * Get the vault URL.
      *
      * @return string The vault URL.
