@@ -27,6 +27,13 @@ class VaultKey
     private $key = null;
 
     /**
+     * The key version.
+     *
+     * @var int
+     */
+    private $key_version = null;
+
+    /**
      * The name of the key.
      *
      * @config
@@ -131,6 +138,16 @@ class VaultKey
     }
 
     /**
+     * Get the key version.
+     *
+     * @return int
+     */
+    public function getKeyVersion(): int
+    {
+        return $this->key_version;
+    }
+
+    /**
      * Rotate the key.
      *
      * @return VaultKey
@@ -185,11 +202,13 @@ class VaultKey
             throw new Exception(sprintf('The key type is not \'%s\'.', $this->type));
 
         if (isset($data['data']['keys'])) {
-            if (isset($data['latest_version']))
+            if (isset($data['latest_version'])) {
                 $this->key = $data['data']['keys'][$data['latest_version']];
-            else {
+                $this->key_version = $data['latest_version'];
+            } else {
                 $latest = max(array_keys($data['data']['keys']));
                 $this->key = $data['data']['keys'][$latest];
+                $this->key_version = $latest;
             }
 
             return $this->key;

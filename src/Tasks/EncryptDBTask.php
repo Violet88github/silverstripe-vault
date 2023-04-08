@@ -23,7 +23,17 @@ class EncryptDBTask extends BuildTask
         $classCount = 0;
         $valueCount = 0;
 
-        $client = VaultClient::create();
+        try {
+            $client = VaultClient::create();
+        } catch (\Exception $e) {
+            $endTime = microtime(true);
+            $executionTime = $endTime - $startTime;
+            $executionTime = round($executionTime * 100000) / 100000;
+
+            error_log("Encryption failed in $executionTime seconds.");
+            exit('Encryption failed in ' . $executionTime . ' seconds.');
+        }
+
         $classes = ClassInfo::subclassesFor(DataObject::class);
         array_shift($classes);
 
@@ -91,7 +101,7 @@ class EncryptDBTask extends BuildTask
             '%Title%' => 'Database encryption',
             '%Status%' => 'completed',
             '%Subtitle%' => 'Successfully encrypted the database',
-            '%ID%' => 'rotate-key' . time(),
+            '%ID%' => 'encrypt-db' . time(),
         ];
 
         $extraData = [
