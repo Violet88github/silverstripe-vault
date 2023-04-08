@@ -10,10 +10,28 @@ Deze module biedt een manier om gevoelige gegevens veilig op te slaan met behulp
 
 ## Installatie
 
-Installeer de module met behulp van composer
+Installeer de module met behulp van composer door de repository en een GitHub OAuth token toe te voegen aan het `composer.json` bestand.
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Violet88github/silverstripe-vault"
+        }
+    ],
+    "config": {
+        "github-oauth": {
+            "github.com": "1234567890abcdef1234567890abcdef12345678" // Github OAuth token with repo access
+        }
+    }
+}
+```
+
+Installeer vervolgens de module.
 
 ```bash
-composer require violet88/silverstripe-vault # this module is closed source
+composer require violet88/silverstripe-vault
 ```
 
 ## Configuratie
@@ -128,7 +146,7 @@ class MyDataObject extends DataObject
 
 ### Tasks
 
-De module biedt tasks om gegevens te encrypten en te decrypten. Dit kan worden gebruikt om alle gegevens te versleutelen, sleutels te roteren, etc.
+De module biedt tasks om gegevens te encrypten en te decrypten en de sleutel te rouleren.
 
 ```bash
 # Encrypt alle data
@@ -138,6 +156,11 @@ vendor/bin/sake dev/tasks/EncryptDBTask
 ```bash
 # Decrypt alle data
 vendor/bin/sake dev/tasks/DecryptDBTask
+```
+
+```bash
+# Rouleer de sleutel
+vendor/bin/sake dev/tasks/RotateKeyTask
 ```
 
 ## Disclaimers
