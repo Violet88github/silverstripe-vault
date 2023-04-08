@@ -27,6 +27,13 @@ class VaultKey
     private $key = null;
 
     /**
+     * The key version.
+     *
+     * @var int
+     */
+    private $key_version = null;
+
+    /**
      * The name of the key.
      *
      * @config
@@ -131,6 +138,16 @@ class VaultKey
     }
 
     /**
+     * Get the key version.
+     *
+     * @return int
+     */
+    public function getKeyVersion(): int
+    {
+        return $this->key_version;
+    }
+
+    /**
      * Rotate the key.
      *
      * @return VaultKey
@@ -141,11 +158,7 @@ class VaultKey
         $url = VaultClient::getUrl();
         $url .= $transit_path . '/keys/' . $this->name . '/rotate';
 
-        error_log($url);
-
         $data = $this->post($url);
-
-        error_log(print_r($data, true));
 
         $this->get_key();
 
@@ -185,17 +198,17 @@ class VaultKey
 
         $data = $this->get($url);
 
-        error_log(print_r($data, true));
-
         if (isset($data['type']) && $data['type'] !== $this->type)
             throw new Exception(sprintf('The key type is not \'%s\'.', $this->type));
 
         if (isset($data['data']['keys'])) {
-            if (isset($data['latest_version']))
+            if (isset($data['latest_version'])) {
                 $this->key = $data['data']['keys'][$data['latest_version']];
-            else {
+                $this->key_version = $data['latest_version'];
+            } else {
                 $latest = max(array_keys($data['data']['keys']));
                 $this->key = $data['data']['keys'][$latest];
+                $this->key_version = $latest;
             }
 
             return $this->key;

@@ -200,8 +200,6 @@ class VaultClient
             'Authorization: Bearer ' . $this->vault_token,
         ]);
 
-        error_log(print_r($data, true));
-
         if (is_array($data))
             $data['batch_input'] = array_map(function ($value) {
                 return [

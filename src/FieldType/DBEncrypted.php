@@ -25,6 +25,13 @@ use Violet88\VaultModule\VaultClient;
 class DBEncrypted extends DBField
 {
     /**
+     * The vault client instance
+     *
+     * @var VaultClient $client
+     */
+    private ?VaultClient $client;
+
+    /**
      * The cast types that cannot be encrypted
      *
      * @var array $unavailable_casts
@@ -37,6 +44,13 @@ class DBEncrypted extends DBField
      * @var bool $is_encrypted
      */
     private bool $is_encrypted = false;
+
+    /**
+     * The key version that was used to encrypt the data, returns null if the data is not encrypted.
+     *
+     * @var int $key_version
+     */
+    private ?int $key_version = null;
 
     /**
      * The cast type to use for displaying the data, can be any SilverStripe datatype (third party datatypes may not work but have not been tested) except for the ones in $unavailable_casts.
@@ -83,6 +97,13 @@ class DBEncrypted extends DBField
         $this->cast = $cast ?? 'Varchar';
         $this->cast_args = $cast_args ?? [];
 
+        try {
+            $this->client = VaultClient::create();
+        } catch (Exception $e) {
+            $this->client = null;
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+        }
+
         Requirements::css('violet88/silverstripe-vault-module: client/dist/styles.css');
         Requirements::css('violet88/silverstripe-vault-module: client/dist/thirdparty/fontawesome/css/all.min.css');
 
@@ -105,11 +126,9 @@ class DBEncrypted extends DBField
         $manipulation['fields'][$this->name] = $this->encrypt($this->value);
 
         try {
-            $client = VaultClient::create();
-
-            $manipulation['fields'][$this->name . '_bidx'] = $client->hmac($this->value ?? 'null');
+            $manipulation['fields'][$this->name . '_bidx'] = $this->client->hmac($this->value ?? 'null');
         } catch (Exception $e) {
-            $client = null;
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
     }
 
@@ -226,10 +245,12 @@ class DBEncrypted extends DBField
      */
     private function decrypt($value)
     {
+        if (!$this->client)
+            return $value;
+
         try {
-            $vaultClient = VaultClient::create();
             if (str_starts_with($value ?? '', 'vault:')) {
-                $decryptValue = $vaultClient->decrypt($value);
+                $decryptValue = $this->client->decrypt($value);
                 if ($decryptValue === 'null')
                     $decryptValue = null;
 
@@ -255,14 +276,15 @@ class DBEncrypted extends DBField
      */
     private function encrypt($value)
     {
-        try {
-            $vaultClient = VaultClient::create();
+        if (!$this->client)
+            return $value;
 
+        try {
             if ($value === null || empty($value))
                 $value = 'null';
 
             if (!str_starts_with($value ?? '', 'vault:'))
-                $value = $vaultClient->encrypt($value);
+                $value = $this->client->encrypt($value);
         } catch (Exception $e) {
             $value ??= '';
             $shortenedValue = substr($value, 0, 10);

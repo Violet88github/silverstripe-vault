@@ -27,7 +27,6 @@ class RotateKeyTask extends BuildTask
 
         try {
             $client = VaultClient::create();
-            error_log('Rotating key...');
             $client->getKey()->rotate();
         } catch (\Exception $e) {
             $endTime = microtime(true);
@@ -40,8 +39,6 @@ class RotateKeyTask extends BuildTask
 
         $classes = ClassInfo::subclassesFor(DataObject::class);
         array_shift($classes);
-
-        error_log(print_r($classes, true));
 
         foreach ($classes as $class) {
             $className = ClassInfo::shortName($class);
