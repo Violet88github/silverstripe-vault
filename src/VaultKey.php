@@ -141,11 +141,7 @@ class VaultKey
         $url = VaultClient::getUrl();
         $url .= $transit_path . '/keys/' . $this->name . '/rotate';
 
-        error_log($url);
-
         $data = $this->post($url);
-
-        error_log(print_r($data, true));
 
         $this->get_key();
 
@@ -184,8 +180,6 @@ class VaultKey
         $url .= $transit_path . '/keys/' . $this->name;
 
         $data = $this->get($url);
-
-        error_log(print_r($data, true));
 
         if (isset($data['type']) && $data['type'] !== $this->type)
             throw new Exception(sprintf('The key type is not \'%s\'.', $this->type));
