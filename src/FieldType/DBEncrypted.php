@@ -126,7 +126,8 @@ class DBEncrypted extends DBField
         $manipulation['fields'][$this->name] = $this->encrypt($this->value);
 
         try {
-            $manipulation['fields'][$this->name . '_bidx'] = $this->client->hmac($this->value ?? 'null');
+            if ($this->client)
+                $manipulation['fields'][$this->name . '_bidx'] = $this->client->hmac($this->value ?? 'null');
         } catch (Exception $e) {
             Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
