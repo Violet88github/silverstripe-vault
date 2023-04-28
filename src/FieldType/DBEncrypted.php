@@ -101,7 +101,7 @@ class DBEncrypted extends DBField
             $this->client = VaultClient::create();
         } catch (Exception $e) {
             $this->client = null;
-            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+            // Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
 
         Requirements::css('violet88/silverstripe-vault-module: client/dist/styles.css');
@@ -129,7 +129,7 @@ class DBEncrypted extends DBField
             if ($this->client)
                 $manipulation['fields'][$this->name . '_bidx'] = $this->client->hmac($this->value ?? 'null');
         } catch (Exception $e) {
-            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+            // Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
     }
 
@@ -262,9 +262,9 @@ class DBEncrypted extends DBField
             $shortenedValue = substr($value, 0, 10);
             if (strlen($value) > 10)
                 $shortenedValue .= '... ';
-            Injector::inst()
-                ->get(LoggerInterface::class)
-                ->info("Could not decrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
+            // Injector::inst()
+            //     ->get(LoggerInterface::class)
+            //     ->info("Could not decrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
         }
 
         return $value;
@@ -291,9 +291,9 @@ class DBEncrypted extends DBField
             $shortenedValue = substr($value, 0, 10);
             if (strlen($value) > 10)
                 $shortenedValue .= '... ';
-            Injector::inst()
-                ->get(LoggerInterface::class)
-                ->info("Could not encrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
+            // Injector::inst()
+            //     ->get(LoggerInterface::class)
+            //     ->info("Could not encrypt $shortenedValue: " . $e->getMessage() . ", returning as is.");
         }
 
         return $value;

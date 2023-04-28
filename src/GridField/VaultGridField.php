@@ -36,7 +36,7 @@ class VaultGridField extends GridField
                 $record->{$fieldName} = DBEncrypted::cast($value, $encryptedFieldCasts[$key]);
             }
         } catch (\Exception $e) {
-            Injector::inst()->get(LoggerInterface::class)->warning($e->getMessage());
+            // Injector::inst()->get(LoggerInterface::class)->warning($e->getMessage());
         }
 
         return parent::getColumnContent($record, $column);
