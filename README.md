@@ -4,9 +4,9 @@ This module provides a way to store sensitive data securely using the [Vault](ht
 
 ## Requirements
 
-* SilverStripe 4.0+
-* PHP >= 7.4, >= 8.0
-* [Vault Server](https://vaultproject.io) with [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) enabled
+-   SilverStripe ^4 || ^5
+-   PHP ^7.4 || ^8.0
+-   [Vault Server](https://vaultproject.io) with [Transit API](https://developer.hashicorp.com/vault/api-docs/secret/transit) enabled
 
 ## Installation
 
@@ -63,9 +63,9 @@ The module requires a Vault server to be configured. The server can be configure
 name: vault
 ---
 Violet88/VaultModule/VaultClient:
-    vault_token:            # Vault Authorization Token
-    vault_url:              # Vault URL
-    vault_transit_path:     # Transit Path, defaults to 'transit'
+    vault_token: # Vault Authorization Token
+    vault_url: # Vault URL
+    vault_transit_path: # Transit Path, defaults to 'transit'
 ```
 
 Additionally, a default key can be configured in the `vault.yml` file.
@@ -80,8 +80,8 @@ If no key is configured, the module will use the following defaults.
 
 ```yaml
 Violet88/VaultModule/VaultKey:
-    name: 'silverstripe'
-    type: 'aes256-gcm96'
+    name: "silverstripe"
+    type: "aes256-gcm96"
 ```
 
 Keys will be created automatically if they do not exist, be sure to set Vault permissions accordingly.
@@ -163,4 +163,4 @@ vendor/bin/sake dev/tasks/RotateKeyTask
 
 ## Disclaimers
 
-* Violet88 is not responsible for any loss of data or other damages caused by the use of this module. Use at your own risk.
+-   Violet88 is not responsible for any loss of data or other damages caused by the use of this module. Use at your own risk.

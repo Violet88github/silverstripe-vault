@@ -10,20 +10,20 @@ SilverStripe\Core\Injector\Injector:
     class: Violet88\VaultModule\SearchFilter\EncryptedSearchFilter
   SilverStripe\ORM\DataListFilter:
     properties:
-      Encrypted: 'EncryptedSearch'
+      Encrypted: EncryptedSearch
   SilverStripe\ORM\DataQuery:
     properties:
-      Encrypted: 'EncryptedSearch'
+      Encrypted: EncryptedSearch
   SilverStripe\ORM\DataObject:
     properties:
-      Encrypted: 'EncryptedSearch'
+      Encrypted: EncryptedSearch
 
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - Violet88\VaultModule\SiteConfigExtensions\VaultSiteConfigExtension
 
 Violet88\VaultModule\VaultClient:
-  vault_transit_path: 'transit'
+  vault_transit_path: transit
 
 # Add the templates folder to the list of folders to look for templates
 SilverStripe\Core\Manifest\ModuleManifest:
