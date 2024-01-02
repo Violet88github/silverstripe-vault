@@ -17,7 +17,7 @@ use Violet88\VaultModule\VaultClient;
 /**
  * The DBEncrypted class is a new SilverStripe datatype that allows for encrypting and decrypting data in the database using Vault (may be used with other encryption methods in the future).
  *
- * @package violet88/silverstripe-vault-module
+ * @package violet88/silverstripe-vault
  * @author  Violet88 @violet88github <info@violet88.nl>
  * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
  * @access  public
@@ -104,8 +104,8 @@ class DBEncrypted extends DBField
             // Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
         }
 
-        Requirements::css('violet88/silverstripe-vault-module: client/dist/styles.css');
-        Requirements::css('violet88/silverstripe-vault-module: client/dist/thirdparty/fontawesome/css/all.min.css');
+        Requirements::css('violet88/silverstripe-vault: client/dist/styles.css');
+        Requirements::css('violet88/silverstripe-vault: client/dist/thirdparty/fontawesome/css/all.min.css');
 
         parent::__construct($name);
     }

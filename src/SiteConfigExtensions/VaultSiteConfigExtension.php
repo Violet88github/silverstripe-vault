@@ -11,7 +11,7 @@ use Violet88\VaultModule\VaultClient;
 /**
  * The VaultSiteConfigExtension class is a SilverStripe extension that adds a tab to the SiteConfig that shows the status of the Vault server, or if it is not reachable an error message across all tabs.
  *
- * @package violet88/silverstripe-vault-module
+ * @package violet88/silverstripe-vault
  * @author  Violet88 @violet88github <info@violet88.nl>
  * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
  * @access  public
@@ -53,8 +53,8 @@ class VaultSiteConfigExtension extends DataExtension
     public function updateCMSFields(FieldList $fields)
     {
 
-        Requirements::css('violet88/silverstripe-vault-module: client/dist/styles.css');
-        Requirements::css('violet88/silverstripe-vault-module: client/dist/thirdparty/fontawesome/css/all.min.css');
+        Requirements::css('violet88/silverstripe-vault: client/dist/styles.css');
+        Requirements::css('violet88/silverstripe-vault: client/dist/thirdparty/fontawesome/css/all.min.css');
 
         $status = $this->getVaultStatus();
 

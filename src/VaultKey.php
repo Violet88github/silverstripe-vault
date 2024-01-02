@@ -9,7 +9,7 @@ use SilverStripe\Core\Config\Configurable;
 /**
  * The VaultKey class serves as a wrapper for a Vault key.
  *
- * @package violet88/silverstripe-vault-module
+ * @package violet88/silverstripe-vault
  * @author  Violet88 @violet88github <info@violet88.nl>
  * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
  *

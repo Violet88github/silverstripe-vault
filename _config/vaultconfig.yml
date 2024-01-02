@@ -28,4 +28,4 @@ Violet88\VaultModule\VaultClient:
 # Add the templates folder to the list of folders to look for templates
 SilverStripe\Core\Manifest\ModuleManifest:
   module_priority:
-    - violet88/silverstripe-vault-module
+    - violet88/silverstripe-vault

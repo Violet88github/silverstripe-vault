@@ -9,7 +9,7 @@ use SilverStripe\Core\Environment;
 /**
  * The VaultClient class serves as a SilverStripe configurable wrapper for the Vault API.
  *
- * @package violet88/silverstripe-vault-module
+ * @package violet88/silverstripe-vault
  * @author  Violet88 @violet88github <info@violet88.nl>
  * @author  Roël Couwenberg @PixNyb <contact@roelc.me>
  * @access  public
