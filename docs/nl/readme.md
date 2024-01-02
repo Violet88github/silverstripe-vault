@@ -10,25 +10,7 @@ Deze module biedt een manier om gevoelige gegevens veilig op te slaan met behulp
 
 ## Installatie
 
-Installeer de module met behulp van composer door de repository en een GitHub OAuth token toe te voegen aan het `composer.json` bestand.
-
-```json
-{
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Violet88github/silverstripe-vault"
-        }
-    ],
-    "config": {
-        "github-oauth": {
-            "github.com": "1234567890abcdef1234567890abcdef12345678" // Github OAuth token with repo access
-        }
-    }
-}
-```
-
-Installeer vervolgens de module.
+Installeer de module met behulp van composer.
 
 ```bash
 composer require violet88/silverstripe-vault
